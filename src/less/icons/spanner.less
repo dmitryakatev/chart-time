@@ -1,0 +1,67 @@
+.@{base-class-name}-icon-spanner {
+
+    &:before, &:after {
+        content: "";
+        position: absolute;
+    }
+
+    &:before {
+        width: 7px;
+        height: 7px;
+        top: 0;
+        right: 0;
+        border-radius: 100%;
+        background: @color-icon;
+
+        .chart-time-icon-wrap:hover & {
+            background: @color-icon-hover;
+        }
+    }
+
+    &:after {
+        top: -2px;
+        left: 6px;
+        width: 3px;
+        height: 5px;
+        border-bottom-width: 10px;
+        border-bottom-style: solid;
+        border-bottom-color: @color-icon;
+        background: white;
+        transform: rotate(45deg);
+
+        .chart-time-icon-wrap:hover & {
+            border-bottom-color: @color-icon-hover;
+        }
+    }
+
+    &-context {
+        display: none;
+        position: absolute;
+        background-color: white;
+        border: 1px solid cyan;
+        box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        margin-top: 5px;
+        top: 100%;
+        right: -4px;
+        z-index: 1000;
+
+        &-item {
+            white-space: nowrap;
+            font-size: 14px;
+            margin: 3px;
+            padding: 3px;
+
+            &-selected {
+                background-color: #00eeee;
+            }
+
+            &:hover {
+                background-color: cyan;
+            }
+        }
+
+        &-show {
+            display: block;
+        }
+    }
+}

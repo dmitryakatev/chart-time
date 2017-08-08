@@ -1,0 +1,27 @@
+@color-icon: #0093bc;
+@color-icon-hover: #c7cfec;
+
+.@{base-class-name}-icon {
+    position: relative;
+    width: 13px;
+    height: 13px;
+    margin: 4px;
+
+    &-wrap {
+        display: inline-block;
+        box-sizing: content-box;
+        width: 21px;
+        height: 21px;
+        border-radius: 100%;
+        border-width: 1px;
+        border-style: solid;
+        border-color: @color-icon;
+        cursor: pointer;
+        vertical-align: top;
+        margin: 4px;
+
+        &:hover {
+            border-color: @color-icon-hover;
+        }
+    }
+}

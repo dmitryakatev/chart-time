@@ -1,0 +1,108 @@
+@import "./global.less";
+@import "./icons/icon.less";
+
+@import "./icons/full.less";
+@import "./icons/spanner.less";
+@import "./icons/group.less";
+
+.@{base-class-name} {
+	&-legend {
+		font-family: 'arial, tahoma, verdana, sans-serif';
+		font-size: 13px;
+		width: 240px;
+	    position: absolute;
+	    top: 0px;
+	    right: 0;
+	    bottom: 0px;
+	    background-color: white;
+
+        &-content {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding-top: 25px;
+        }
+
+	    &-wrap {
+	    	width: 100%;
+	    	height: 100%;
+    	    padding: 5px 0 10px 15px;
+    	    box-sizing: border-box;
+
+            &-top {
+                padding-top: 0px;
+            }
+	    }
+
+	    &-tool {
+	    	position: absolute;
+            box-sizing: border-box;
+	    	top: 0;
+	    	left: 10px;
+	    	width: 100%;
+	    	height: 30px;
+
+            &-small {
+                width: 30px;
+                height: 100%;
+            }
+
+            &-hide {
+                display: none;
+            }
+	    }
+
+	    &-drag {
+	    	position: absolute;
+            background-color: cyan;
+	    	top: 0;
+	    	left: 0;
+	    	width: 8px;
+	    	height: 100%;
+            margin-left: 1px;
+            margin-right: 1px;
+
+            &-draggable {
+                cursor: e-resize;
+            }
+	    }
+
+	    &-item {
+	    	cursor: pointer;
+    		padding-bottom: 3px;
+            white-space: nowrap;
+
+    		&:hover {
+    			font-weight: bold;
+    		}
+
+    		&-off {
+    			opacity: 0.5;
+
+    			&:hover {
+				    font-weight: normal;
+				}
+    		}
+
+    		&-color {
+    			display: inline-block;
+			    width: 10px;
+			    height: 10px;
+			    margin-right: 5px;
+    		}
+
+    		&-text {
+    			//--
+    		}
+	    }
+
+        &-tooltip {
+            border: 1px dotted cyan;
+            background-color: cyan;
+            white-space: nowrap;
+            font-size: 14px;
+            padding: 3px;
+        }
+	}
+}

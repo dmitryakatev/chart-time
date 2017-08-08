@@ -1,0 +1,14 @@
+{
+    "types": ["jasmine"],
+	"compilerOptions": {
+		"target": "ES5",
+		"baseUrl": ".",
+		"allowJs": true
+	},
+    "exclude": [
+        "node_modules",
+        "example"
+    ],
+	"compileOnSave": false,
+  	"buildOnSave": false
+}

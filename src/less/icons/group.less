@@ -1,0 +1,29 @@
+.@{base-class-name}-icon-group {
+
+    &:before {
+        content: "";
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        left: 4px;
+        top: 2px;
+        border-style: solid;
+        border-width: 2px;
+        border-left-color: @color-icon;
+        border-top-color: @color-icon;
+        border-right-color: transparent;
+        border-bottom-color: transparent;
+        transform: rotate(-45deg);
+
+        .chart-time-icon-wrap:hover & {
+            border-left-color: @color-icon-hover;
+            border-top-color: @color-icon-hover;
+        }
+    }
+
+    &-expanded:before {
+        transform: rotate(-135deg);
+        left: 2px;
+        top: 0px;
+    }
+}

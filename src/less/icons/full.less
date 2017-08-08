@@ -1,0 +1,39 @@
+.@{base-class-name}-icon-full {
+    overflow: hidden;
+
+    &:before, &:after {
+        content: "";
+        position: absolute;
+        left: 5px;
+        top: 1px;
+        width: 3px;
+        height: 11px;
+        background: @color-icon;
+
+        .chart-time-icon-wrap:hover & {
+            background: @color-icon-hover;
+        }
+    }
+
+    &:before {
+        transform: rotate(45deg);
+    }
+
+    &:after {
+        transform: rotate(-45deg);
+    }
+
+    &-square {
+        position: absolute;
+        left: -3px;
+        top: -3px;
+        bottom: -3px;
+        right: -3px;
+        border: 4px solid @color-icon;
+        transform: rotate(45deg);
+
+        .chart-time-icon-wrap:hover & {
+            border-color: @color-icon-hover;
+        }
+    }
+}

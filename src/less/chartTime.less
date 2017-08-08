@@ -1,0 +1,69 @@
+@import "./global.less";
+
+.@{base-class-name} {
+	position: relative;
+    user-select: none;
+    border: 1px solid cyan;
+    box-sizing: content-box;
+
+    &-content {
+    	position: relative;
+		width: 100%;
+		height: 100%;
+
+		&-wrap {
+			background: rgba(0,0,0,0); //fix ie
+			width: 100%;
+		    height: 100%;
+
+		    &-event {
+		    	position: absolute;
+	    	    top: 0;
+    			left: 0;
+		    }
+		}
+    }
+
+    &-line {
+        position: absolute;
+        width: 0;
+
+        &-pointer {
+            border-right: 1px dashed black;
+        }
+
+        &-time {
+            border-right: 1px solid black;
+        }
+    }
+
+    &-tooltip-data {
+        border-collapse: collapse;
+        font-size: 14px;
+
+        th {
+            border: 1px dotted cyan;
+            background-color: cyan;
+            text-align: left;
+            white-space: nowrap;
+            padding: 3px;
+
+            span {
+                margin: 3px;
+            }
+        }
+
+        &-color {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-right: 5px;
+        }
+
+        td {
+            border: 1px dotted cyan;
+            white-space: nowrap;
+            padding: 3px;
+        }
+    }
+}
