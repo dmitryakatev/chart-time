@@ -1,4 +1,4 @@
-import { ChartTime } from "./ChartTime";
+/*import { ChartTime } from "./ChartTime";
 import { ChartGroup } from "./ChartGroup";
 
 import { isEnablePrintWarn, setEnablePrintWarn } from "./modules/PrintWarn";
@@ -11,3 +11,15 @@ import { isEnablePrintWarn, setEnablePrintWarn } from "./modules/PrintWarn";
 };
 
 export = ChartTime;
+*/
+
+import { Full } from "./modules/buttons/Full";
+
+const button: Full = new Full({
+    chartTime: {},
+    // bindTo: document.body,
+});
+
+setTimeout(() => {
+    button.bindTo(document.body);
+}, 5000);

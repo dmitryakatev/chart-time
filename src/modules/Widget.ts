@@ -1,4 +1,5 @@
 import { isEnablePrintWarn } from "./PrintWarn";
+import { CacheEvent } from "./CacheEvent";
 
 import { createDOM, mergeIf } from "./../utils/util";
 
@@ -10,7 +11,7 @@ export abstract class Widget {
 
     public static prefixClass: string = "chart-time";
 
-    public static config = {
+    public static config: IConfig = {
         bindTo: null,
         isInit: true,
         show: true,
@@ -19,10 +20,9 @@ export abstract class Widget {
 
     public static template: string;
 
-    public static create(config: IConfig): Widget {
-        console.log(this);
-        // return new (this)(config);
-        return null;
+    public static create(config?: IConfig): Widget {
+        const ctor = this as any;
+        return new ctor(config);
     }
 
     private static id: number = 0;
@@ -32,13 +32,17 @@ export abstract class Widget {
     public className: string;
     public container: HTMLElement;
 
+    protected cacheEvent: CacheEvent;
+
     constructor(config?: IConfig) {
         this.id = (++Widget.id).toString(36);
+        this.cacheEvent = new CacheEvent();
         this.init(this.mergeConfig(config));
     }
 
     public init(config: IConfig): void {
         this.className = config.className;
+        this.show(config.show);
 
         if (config.bindTo) {
             this.bindTo(config.bindTo);
@@ -54,7 +58,11 @@ export abstract class Widget {
         }
 
         bindTo.appendChild(this.container);
+        this.show(this.isShow);
+        this.afterRender();
     }
+
+    public abstract afterRender(): void;
 
     public show(show?: boolean): void {
         this.isShow = show !== false;
@@ -89,6 +97,7 @@ export abstract class Widget {
         }
 
         this.id = null;
+        this.cacheEvent.off();
 
         if (this.container !== null) {
             this.container.parentNode.removeChild(this.container);

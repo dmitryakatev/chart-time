@@ -1,0 +1,27 @@
+import { IConfig } from "./../Widget";
+import { Button } from "./Button";
+
+export class Full extends Button {
+
+    public static config: IConfig = {
+        tooltip: "Первоначальный вид графика",
+    };
+
+    public static icon: string = [
+        "<div class=\"chart-time-icon chart-time-icon-full\">",
+            "<div class=\"chart-time-icon-full-square\"></div>",
+        "</div>",
+    ].join("");
+
+    public afterRender(): void {
+        super.afterRender();
+
+        this.cacheEvent.on(this.container, {
+            click: () => {
+                this.chartTime.scale = 1;
+                this.chartTime.offset = 1;
+                // this.chartTime.redraw();
+            },
+        });
+    }
+}
