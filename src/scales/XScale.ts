@@ -21,7 +21,7 @@ export class XScale extends BaseScale {
         if (scale.min === null || scale.max === null) {
             scale.coord = null;
             scale.labels = null;
-            scale.coords = null;
+            scale.coords = [];
             return;
         }
 
