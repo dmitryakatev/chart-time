@@ -115,6 +115,10 @@ export class XScale extends BaseScale {
     }
 
     public draw(ctx: CanvasRenderingContext2D, coord: Coord): void {
+        if (this.coord === null) {
+            return;
+        }
+
         ctx.beginPath();
 
         ctx.globalAlpha = this.opacity;

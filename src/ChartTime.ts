@@ -406,7 +406,7 @@ export class ChartTime {
             // console.time("redraw");
             const sizeBody: number[] = this.getSizeBody();
             const series: ISeries[] = this.getSeriesToDraw().sort((s1, s2) => {
-                return s1.priority - s2.priority;
+                return s2.priority - s1.priority;
             });
 
             if (this.needCalculate) {

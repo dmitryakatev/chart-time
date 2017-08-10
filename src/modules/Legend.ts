@@ -262,7 +262,9 @@ export class Legend {
 
     private getMarkupItem(s: ISeries): string {
         return "<div class=\"chart-time-legend-item\" data-key=\"" + s.id + "\">" +
-            "<div class=\"chart-time-legend-item-color\" style=\"background-color: " + s.color + ";\"></div>" +
+            "<div class=\"chart-time-legend-item-color\"" +
+                " style=\"background-color: " + s.color + ";opacity: " + s.opacity + "\">" +
+            "</div>" +
             "<span class=\"chart-time-legend-item-text\">" + s.title + "</span>" +
          "</div>";
     }
