@@ -49,7 +49,7 @@ export class XScale extends BaseScale {
         // fullX / 1000 - кол-во секунд в графике (т.е. преобразуем из миллисекунд в секунды)
         // fullX / 1000 / widthScale - количество секунд в одном пикселе
         // partTime - кол-во секунд в ширине текста
-        const partTime: number = fullX / 1000 / widthBody * widthText;
+        const partTime: number = fullX / 1000 / widthScale * widthText;
 
         const index: number = bisect.left(intervals, partTime);
 
