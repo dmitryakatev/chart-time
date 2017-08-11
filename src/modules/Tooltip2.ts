@@ -5,7 +5,11 @@ import "../less/tooltip.less";
 export class Tooltip extends Widget {
 
     public static config: IConfig = {
-        target: null,
+        target: null, // DOM елемент, при наведении на который будет появляться тултип
+        margin: 15,   // отступ от координаты мыши
+        showDelay: 0, // через сколько секунд показывать тултип после наведения
+        hideDelay: 0, // через сколько секунд прятать тултип после показа
+        saveDelay: 0, // сколько секунд игнорировать showDelay
         // events: {
         //     onCreate: (tooltip: Tooltip, event: MouseEvent) => {},
         //     onMove: (tooltip: Tooltip, event: MouseEvent) => {},
@@ -13,9 +17,20 @@ export class Tooltip extends Widget {
         // },
     };
 
+    public margin: number;
+    public showDelay: number;
+    public hideDelay: number;
+    public saveDelay: number;
+
     public init(config: IConfig): void {
         config.bindTo = null;
         super.init(config);
+
+        this.margin = config.margin;
+
+        this.showDelay = config.showDelay;
+        this.hideDelay = config.hideDelay;
+        this.saveDelay = config.saveDelay;
 
         this.cacheEvent.on(config.target, {
             mousedown: (event: MouseEvent) => {
@@ -26,9 +41,10 @@ export class Tooltip extends Widget {
                 if (this.isShow) {
                     if (!this.container) {
                         this.bindTo(document.body);
+                        this.fire("onCreate", event);
                     }
 
-
+                    this.moveTooltip(event);
                 }
                 // console.log(event);
                 // console.log("move");
@@ -40,9 +56,17 @@ export class Tooltip extends Widget {
         });
     }
 
-    // init tooltip
+    // onCreateTooltip
     public afterRender(): void {
+        // empty
+    }
 
+    private moveTooltip(event: MouseEvent): void {
+        console.log(111);
+    }
+
+    private removeTooltip(event: MouseEvent): void {
+        
     }
 }
 /*

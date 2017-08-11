@@ -109,12 +109,12 @@ export abstract class Widget {
         return Object.getPrototypeOf(this).constructor;
     }
 
-    public fire(eventName: string): void {
+    public fire(...args: any[]): void {
+        const eventName: string = args[0] as string;
         if (!this.events || !this.events.hasOwnProperty(eventName)) {
             return;
         }
 
-        const args: any[] = Array.prototype.slice.call(arguments);
         args[0] = this;
 
         this.events[eventName].apply(null, args);
