@@ -13,23 +13,31 @@ export abstract class Widget {
 
     public static config: IConfig = {
         bindTo: null,
-        isInit: true,
-        show: true,
         className: null,
+        show: true,
+        width: null,
+        height: null,
+        events: {},
     };
 
     public static template: string;
 
-    public static create<T extends Widget>(config?: IConfig): T {
-        const Ctor = this as any;
-        return new Ctor(config);
-    }
+    // public static create<T extends Widget>(config?: IConfig): T {
+    //     const Ctor = this as any;
+    //     return new Ctor(config);
+    // }
 
     private static id: number = 0;
 
     public id: string;
-    public isShow: boolean;
     public className: string;
+    public isShow: boolean;
+
+    public events: IConfig;
+
+    public width: number;
+    public height: number;
+
     public container: HTMLElement;
 
     protected cacheEvent: CacheEvent;
@@ -43,6 +51,11 @@ export abstract class Widget {
     public init(config: IConfig): void {
         this.className = config.className;
         this.isShow = config.show;
+
+        this.events = config.events;
+
+        this.width = config.width;
+        this.height = config.height;
 
         if (config.bindTo) {
             this.bindTo(config.bindTo);
@@ -59,6 +72,7 @@ export abstract class Widget {
 
         bindTo.appendChild(this.container);
         this.show(this.isShow);
+        this.setSize(this.width, this.height);
         this.afterRender();
     }
 
@@ -72,12 +86,38 @@ export abstract class Widget {
         }
     }
 
+    public setSize(width: number, height: number): void {
+        if (this.container) {
+            if (this.width !== width) {
+                this.container.style.width = width === null ? "" : (width + "px");
+            }
+
+            if (this.height !== height) {
+                this.container.style.width = height === null ? "" : (height + "px");
+            }
+        }
+
+        this.width = width;
+        this.height = height;
+    }
+
     public hide(hide?: boolean): void {
         this.show(hide !== false);
     }
 
     public self(): any { // TODO
         return Object.getPrototypeOf(this).constructor;
+    }
+
+    public fire(eventName: string): void {
+        if (!this.events || !this.events.hasOwnProperty(eventName)) {
+            return;
+        }
+
+        const args: any[] = Array.prototype.slice.call(arguments);
+        args[0] = this;
+
+        this.events[eventName].apply(null, args);
     }
 
     public destroy(): void {
