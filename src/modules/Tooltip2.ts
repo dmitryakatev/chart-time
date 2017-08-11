@@ -1,9 +1,55 @@
-import { isEnablePrintWarn } from "./PrintWarn";
+import { Widget, IConfig } from "./Widget";
+
+import "../less/tooltip.less";
+
+export class Tooltip extends Widget {
+
+    public static config: IConfig = {
+        target: null,
+        // events: {
+        //     onCreate: (tooltip: Tooltip, event: MouseEvent) => {},
+        //     onMove: (tooltip: Tooltip, event: MouseEvent) => {},
+        //     onRemove: (tooltip: Tooltip, event: MouseEvent) => {},
+        // },
+    };
+
+    public init(config: IConfig): void {
+        config.bindTo = null;
+        super.init(config);
+
+        this.cacheEvent.on(config.target, {
+            mousedown: (event: MouseEvent) => {
+                // console.log(event);
+                console.log("down");
+            },
+            mousemove: (event: MouseEvent) => {
+                if (this.isShow) {
+                    if (!this.container) {
+                        this.bindTo(document.body);
+                    }
+
+
+                }
+                // console.log(event);
+                // console.log("move");
+            },
+            mouseleave: (event: MouseEvent) => {
+                // console.log(event);
+                // console.log("leave");
+            },
+        });
+    }
+
+    // init tooltip
+    public afterRender(): void {
+
+    }
+}
+/*
 
 import { CacheEvent } from "../modules/CacheEvent";
 import { createDOM, mergeIf } from "../utils/util";
 
-import "../less/tooltip.less";
 
 export interface ITooltipEvents {
     onCreate?: (legend: Tooltip, event: MouseEvent) => any;
@@ -253,3 +299,4 @@ export class Tooltip {
         }
     }
 }
+*/

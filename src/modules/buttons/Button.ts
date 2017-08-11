@@ -1,4 +1,5 @@
 import { Widget, IConfig } from "./../Widget";
+import { Tooltip } from "./../Tooltip2";
 import { ChartTime } from "./../../ChartTime";
 
 import "./../../less/icons/icon.less";
@@ -14,25 +15,38 @@ export abstract class Button extends Widget {
     public static icon: string;
 
     public chartTime: ChartTime;
-    public tooltip: string;
+    public tooltip: Tooltip;
+    public title: string;
 
     public init(config: IConfig): void {
         super.init(config);
 
         this.chartTime = config.chartTime;
-        this.tooltip = config.tooltip;
+        this.title = config.tooltip;
     }
 
     public afterRender(): void {
         this.container.innerHTML = this.self().icon;
 
-        if (this.tooltip) {
-            this.container.setAttribute("data-tooltip", this.tooltip);
+        if (this.title) {
+            this.container.setAttribute("data-tooltip", this.title);
+            this.tooltip = new Tooltip({
+                target: this.container,
+                events: {
+                    onCreate: (tooltip: Tooltip) => {
+                        console.log(tooltip);
+                    },
+                },
+            });
         }
     }
 
     public destroy(): void {
         super.destroy();
         this.chartTime = null;
+
+        if (this.tooltip) {
+            this.tooltip.destroy();
+        }
     }
 }
