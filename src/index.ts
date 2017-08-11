@@ -16,6 +16,8 @@ export = ChartTime;
 import { Full } from "./modules/buttons/Full";
 import { Damage } from "./modules/buttons/Damage";
 
+import "./less/chartTime.less";
+
 const chartTime = {
     settings: {},
 };

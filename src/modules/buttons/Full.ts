@@ -1,6 +1,8 @@
 import { IConfig } from "./../Widget";
 import { Button } from "./Button";
 
+import "./../../less/icons/full.less";
+
 export class Full extends Button {
 
     public static config: IConfig = {

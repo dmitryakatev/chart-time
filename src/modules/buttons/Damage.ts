@@ -3,6 +3,8 @@ import { Button } from "./Button";
 
 import { on } from "./../../utils/event";
 
+import "./../../less/icons/spanner.less";
+
 interface IOption {
     text: string;
     damage: number;
@@ -70,17 +72,31 @@ export class Damage extends Button {
             click: (event: MouseEvent) => {
                 const target: HTMLDivElement = event.target as HTMLDivElement;
                 const damage = target.getAttribute("data-damage");
-                console.log(damage);
+
+                if (damage && damage.length > 0) {
+                    const selector: string = "." + Damage.classNameItemSelected;
+                    const selected: HTMLDivElement = this.context.querySelector(selector) as HTMLDivElement;
+
+                    if (selected) {
+                        this.removeClass(selected, Damage.classNameItemSelected);
+                    }
+                    this.addClass(target, Damage.classNameItemSelected);
+
+                    this.chartTime.settings.filterQuality = parseInt(damage, 10);
+                    // this.chartTime.fire("onChangeSetting");
+                }
             },
         });
 
         this.cacheEvent.on(this.container, {
             click: () => {
                 if (captured && captured.id === this.id) {
+                    this.showEl(this.context, false);
                     captured = null;
                 } else {
                     this.showEl(this.context, true);
                     captured = this;
+
                     isHot = true;
                 }
             },
@@ -104,7 +120,7 @@ export class Damage extends Button {
         return [
             "<div",
                 " class=\"" + className + "\"",
-                " data-damage=\"" + option.damage + "\">",
+                " data-damage=\"" + option.damage.toString() + "\">",
                 option.text,
             "</div>",
         ].join("");

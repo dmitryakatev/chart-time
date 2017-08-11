@@ -1,6 +1,8 @@
 import { Widget, IConfig } from "./../Widget";
 import { ChartTime } from "./../../ChartTime";
 
+import "./../../less/icons/icon.less";
+
 export abstract class Button extends Widget {
 
     public static config: IConfig = {
