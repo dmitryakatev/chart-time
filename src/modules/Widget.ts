@@ -20,9 +20,9 @@ export abstract class Widget {
 
     public static template: string;
 
-    public static create(config?: IConfig): Widget {
-        const ctor = this as any;
-        return new ctor(config);
+    public static create<T extends Widget>(config?: IConfig): T {
+        const Ctor = this as any;
+        return new Ctor(config);
     }
 
     private static id: number = 0;
@@ -42,7 +42,7 @@ export abstract class Widget {
 
     public init(config: IConfig): void {
         this.className = config.className;
-        this.show(config.show);
+        this.isShow = config.show;
 
         if (config.bindTo) {
             this.bindTo(config.bindTo);
@@ -68,13 +68,7 @@ export abstract class Widget {
         this.isShow = show !== false;
 
         if (this.container) {
-            const className = Widget.prefixClass + "-hide";
-
-            if (this.isShow) {
-                this.removeClass(this.container, className);
-            } else {
-                this.addClass(this.container, className);
-            }
+            this.showEl(this.container, this.isShow);
         }
     }
 
@@ -118,6 +112,16 @@ export abstract class Widget {
 
     protected hasClass(el: HTMLElement, className: string): boolean {
         return el.classList.contains(className);
+    }
+
+    protected showEl(el: HTMLElement, show: boolean): void {
+        const className = Widget.prefixClass + "-hide";
+
+        if (show) {
+            this.removeClass(el, className);
+        } else {
+            this.addClass(el, className);
+        }
     }
 
     private mergeConfig(config?: IConfig): IConfig {
