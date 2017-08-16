@@ -133,7 +133,7 @@ export class Line extends BaseSeries {
                         xValue = item[keyX];
                         yValue = item[keyY];
 
-                        if (xValue === undefined || yValue === undefined || yValue === null) {
+                        if (xValue !== undefined && yValue !== undefined && yValue !== null) {
                             filter.push(item);
                             break;
                         }
