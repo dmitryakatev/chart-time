@@ -27,35 +27,72 @@ describe("widget abstract class unit test", () => {
 
         expect(widget).not.toBeNull();
         expect(widget instanceof Widget).toBeTruthy();
+
+        if (widget) {
+            widget.destroy();
+        }
     });
 
-    it("must be called init method", () => {
-        const defaultConfig: IConfig = {
-            customConfig: "customConfig",
-            events: {
-                onInitEvent: () => { /**/ },
-            },
-        };
+    describe("must be called init method", () => {
 
-        const shouldBeConfig: IConfig = mergeIf({}, defaultConfig, TestWidget.config, Widget.config);
-        let isValidConfig: boolean;
+        it("and merged config", () => {
+            const config: IConfig = {
+                customConfig: "customConfig",
+                events: {
+                    onInitEvent: () => { /**/ },
+                },
+            };
 
-        spyOn(Widget.prototype, "init").and.callFake((config: IConfig) => {
-            const configKeys: string[] = Object.keys(config);
+            const shouldBeConfig: IConfig = mergeIf({}, config, TestWidget.config, Widget.config);
+            let isValidConfig: boolean;
 
-            if (Object.keys(shouldBeConfig).length !== configKeys.length) {
-                isValidConfig = false;
-                return config;
-            }
+            spyOn(Widget.prototype, "init").and.callFake((c: IConfig) => {
+                const configKeys: string[] = Object.keys(c);
 
-            isValidConfig = configKeys.every((prop: string) => {
-                return (shouldBeConfig.hasOwnProperty(prop)) && shouldBeConfig[prop] === config[prop];
+                if (Object.keys(shouldBeConfig).length !== configKeys.length) {
+                    isValidConfig = false;
+                    return c;
+                }
+
+                isValidConfig = configKeys.every((prop: string) => {
+                    return (shouldBeConfig.hasOwnProperty(prop)) && shouldBeConfig[prop] === c[prop];
+                });
             });
+
+            let widget: TestWidget = new TestWidget(config);
+
+            expect(widget.init).toHaveBeenCalled();
+            expect(isValidConfig).toBeTruthy();
+
+            widget.destroy();
+            widget = null;
         });
 
-        const widget: TestWidget = new TestWidget(defaultConfig);
+        it("and save props", () => {
+            const config: IConfig = {
+                className: "myName",
+                show: false,
+                events: {},
+                width: 10,
+                height: 10,
+            };
 
-        expect(widget.init).toHaveBeenCalled();
-        expect(isValidConfig).toBeTruthy();
+            let widget: TestWidget = new TestWidget(config);
+
+            expect(widget.id).toBe((++(Widget as any).id).toString(36));
+            expect(widget.className).toBe(config.className);
+            expect(widget.isShow).toBe(config.show);
+            expect(widget.events).toBe(config.events);
+            expect(widget.width).toBe(config.width);
+            expect(widget.height).toBe(config.height);
+
+            widget.destroy();
+            widget = null;
+        });
+
+        it("and should render", () => {
+            // render
+        });
+        
     });
 });
