@@ -102,8 +102,8 @@ export class ChartGroup {
                 onChangeScale: this.bindEvent("onChangeState"),
                 onChangeOffset: this.bindEvent("onChangeState"),
                 onChangeWidthLegend: this.bindEvent("onChangeWidthLegend"),
-                onChangeTooltip: this.bindEvent("onChangeLine", "chart-time-line-pointer"),
-                onChangeTimeLine: this.bindEvent("onChangeLine", "chart-time-line-time"),
+                onChangeTooltip: this.bindEvent("onChangeTooltip"),
+                onChangeTimeLine: this.bindEvent("onChangeTimeLine"),
                 onChangeSetting: this.bindEvent("onChangeSetting"),
                 onDblClick: this.bindEvent("onDblClick"),
             },
@@ -179,6 +179,12 @@ export class ChartGroup {
         });
 
         this.enableGrouping(this.grouping);
+    }
+
+    public setTimeLine(date: Date, isCenter: boolean): void {
+        this.charts.forEach((chartTime: ChartTime) => {
+            chartTime.setTimeLine(date, isCenter);
+        });
     }
 
     public disableRedraw(disable: boolean): void {
@@ -287,11 +293,26 @@ export class ChartGroup {
         });
     }
 
-    private bindEvent(methodName: string, ...args: any[]) {
+    public findChartShow(): ChartTime {
+        const ln: number = this.charts.length;
+        let chartTime: ChartTime;
+
+        for (let i: number = 0; i < ln; ++i) {
+            chartTime = this.charts[i];
+
+            if (chartTime.isShow) {
+                return chartTime;
+            }
+        }
+
+        return null;
+    }
+
+    private bindEvent(methodName: string) {
         return (instance: ChartTime) => {
             this.charts.forEach((chartTime: ChartTime) => {
                 if (instance !== chartTime) {
-                    this[methodName](chartTime, instance, args[0]);
+                    this[methodName](chartTime, instance);
                 }
             });
 
@@ -312,11 +333,18 @@ export class ChartGroup {
         chartTime.legend.setWidth(instance.legend.width);
     }
 
-    private onChangeLine(chartTime: ChartTime, instance: ChartTime, selector: string): void {
+    private onChangeTooltip(chartTime: ChartTime, instance: ChartTime): void {
+        const selector: string = "chart-time-line-pointer";
+
         const line1: HTMLDivElement = instance.getDom().querySelector("." + selector) as HTMLDivElement;
         const line2: HTMLDivElement = chartTime.getDom().querySelector("." + selector) as HTMLDivElement;
+
         line2.style.left = line1.style.left;
         line2.style.display = line1.style.display;
+    }
+
+    private onChangeTimeLine(chartTime: ChartTime, instance: ChartTime): void {
+        chartTime.setTimeLine((instance as any).valTime);
     }
 
     private onChangeSetting(chartTime: ChartTime, instance: ChartTime): void {
