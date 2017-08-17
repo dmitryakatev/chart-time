@@ -393,6 +393,8 @@ export class ChartGroup {
     private _updateChart(chartTime: ChartTime, config: IChartTimeSimpleConfig): void {
         chartTime.disableRedraw(true);
 
+        if (!config.series) { config.series = []; }
+
         config.series.forEach((s: any) => {
             if (!s.modifySource) {
                 s.modifySource = true;

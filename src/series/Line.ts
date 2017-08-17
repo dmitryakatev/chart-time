@@ -273,7 +273,7 @@ export class Line extends BaseSeries {
         }
 
         if (this.fill) {
-            const bottom: number = coord.getHeight() - coord.getTop();
+            const bottom: number = coord.getHeight() + coord.getTop();
             ctx.lineTo(coord.getX(last), bottom);
             ctx.lineTo(coord.getX(first), bottom);
             ctx.lineTo(coord.getX(first), coord.getY(first));
