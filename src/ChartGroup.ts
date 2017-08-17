@@ -127,6 +127,11 @@ export class ChartGroup {
         if (!config.charts) { config.charts = []; }
         if (!config.scales) { config.scales = []; }
 
+        this.charts.forEach((chartTime: ChartTime) => {
+            chartTime.series = this.series[chartTime.id];
+        });
+        this.series = {};
+
         this.defaultScale = ChartTime.prototype.updateScales.call(this, config.scales);
         this.charts = this.updater.update(config.charts, this.charts);
 
@@ -395,16 +400,14 @@ export class ChartGroup {
             }
         });
 
+        chartTime.id = config.name;
+
         chartTime.scales = this.scales;
-        chartTime.series = this.series[chartTime.id];
         chartTime.updateSeries(config.series, this.defaultScale);
         this.series[config.name] = chartTime.series;
-        chartTime.id = config.name;
     }
 
     private _removeChart(chartTime: ChartTime): void {
-        chartTime.series = this.series[chartTime.id];
-        delete this.series[chartTime.id];
         chartTime.destroy();
     }
 
