@@ -47,7 +47,7 @@ export class Updater<T extends IInstance> {
         for (let i: number = 0, type: string, instance: T; i < ln; ++i) {
             type = config[i].type || defaultType;
 
-            if (group.hasOwnProperty(type) && group[type].length < indexes[type]) {
+            if (group.hasOwnProperty(type) && group[type].length > indexes[type]) {
                 instance = group[type][indexes[type]++];
                 this.cUpdate(instance, config[i]);
             } else {

@@ -148,6 +148,7 @@ export class ChartGroup {
             chartTime.offset = 0;
 
             chartTime.series = this.series[chartTime.id];
+            chartTime.legend.load([]);
             chartTime.load(this.config.source);
             scale = chartTime.xScalesToDraw[0];
 
