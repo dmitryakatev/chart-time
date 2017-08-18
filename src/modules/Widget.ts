@@ -145,6 +145,7 @@ export abstract class Widget {
 
         if (this.container !== null) {
             this.container.parentNode.removeChild(this.container);
+            this.container = null;
         }
     }
 

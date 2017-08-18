@@ -1,4 +1,5 @@
 import { Widget, IConfig } from "./../../src/modules/Widget";
+import { CacheEvent } from "./../../src/modules/CacheEvent";
 import { mergeIf } from "./../../src/utils/util";
 
 const div: HTMLDivElement = document.createElement("div") as HTMLDivElement;
@@ -202,31 +203,43 @@ describe("widget abstract class unit test", () => {
             expect(widget.container.style.height).toBe("100px");
 
             widget.destroy();
+            widget = null;
 
             widget = new TestWidget({
                 bindTo: div,
             });
 
             expect(widget.container).not.toBeNull();
+
+            widget.destroy();
+            widget = null;
         });
 
     });
-/*
+
     it("must be destroyed", () => {
-        let widget: TestWidget = null;
-        const config: IConfig = {
+        let widget: TestWidget = new TestWidget({
             bindTo: div,
             myEvent: () => {
                 // empty line
             },
-        };
+        });
 
-        try {
-            widget = new TestWidget(config);
-        } catch (e) {
-            console.log(e);
-        }
+        spyOn((widget as any).cacheEvent, "off");
+        const off = (widget as any).cacheEvent.off;
 
+        widget.destroy();
+
+        expect(widget.id).toBeNull();
+        expect(widget.events).toBeNull();
+
+        expect(off).toHaveBeenCalled();
+        expect((widget as any).cacheEvent).toBeNull();
+
+        expect(widget.container).toBeNull();
+        expect(div.children.length).toBe(0);
+
+        widget = null;
     });
-    */
+
 });
