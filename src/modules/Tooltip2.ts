@@ -95,6 +95,7 @@ export class Tooltip extends Widget {
         }
 
         this.container.parentNode.removeChild(this.container);
+        this.container = null;
     }
 
     private correction(): ICoordinate {
