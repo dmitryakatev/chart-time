@@ -1,7 +1,12 @@
 import { Widget, IConfig } from "./../../src/modules/Widget";
 import { mergeIf } from "./../../src/utils/util";
 
+const div: HTMLDivElement = document.createElement("div") as HTMLDivElement;
+const classHide: string = Widget.prefixClass + "-hide";
+
 class TestWidget extends Widget {
+
+    public static template: string = "<div>test</div>";
 
     public static config: IConfig = {
         testConfig: true,
@@ -9,28 +14,49 @@ class TestWidget extends Widget {
     };
 
     public afterRender(): void {
-        // empty code
+        // empty line
     }
 
+    public addCl(el: HTMLElement, className: string): void {
+        this.addClass(el, className);
+    }
+
+    public removeCl(el: HTMLElement, className: string): void {
+        this.removeClass(el, className);
+    }
+
+    public hasCl(el: HTMLElement, className: string): boolean {
+        return this.hasClass(el, className);
+    }
 }
 
 describe("widget abstract class unit test", () => {
 
-    it("must be created without config", () => {
-        let widget: TestWidget;
+    it("must be created", () => {
+        let widget: TestWidget = null;
 
-        try {
-            widget = new TestWidget();
-        } catch (e) {
-            console.log(e);
-        }
+        const configs: IConfig[] = [null, {}, {
+            bindTo: div,
+            myEvent: () => {
+                // empty line
+            },
+        }];
 
-        expect(widget).not.toBeNull();
-        expect(widget instanceof Widget).toBeTruthy();
+        configs.forEach((config: IConfig) => {
+            try {
+                widget = new TestWidget(config);
+            } catch (e) {
+                console.log(e);
+            }
 
-        if (widget) {
-            widget.destroy();
-        }
+            expect(widget).not.toBeNull();
+            expect(widget instanceof Widget).toBeTruthy();
+
+            if (widget) {
+                widget.destroy();
+                widget = null;
+            }
+        });
     });
 
     describe("must be called init method", () => {
@@ -39,7 +65,9 @@ describe("widget abstract class unit test", () => {
             const config: IConfig = {
                 customConfig: "customConfig",
                 events: {
-                    onInitEvent: () => { /**/ },
+                    onInitEvent: () => {
+                        // empty line
+                    },
                 },
             };
 
@@ -57,6 +85,8 @@ describe("widget abstract class unit test", () => {
                 isValidConfig = configKeys.every((prop: string) => {
                     return (shouldBeConfig.hasOwnProperty(prop)) && shouldBeConfig[prop] === c[prop];
                 });
+
+                return c;
             });
 
             let widget: TestWidget = new TestWidget(config);
@@ -64,7 +94,6 @@ describe("widget abstract class unit test", () => {
             expect(widget.init).toHaveBeenCalled();
             expect(isValidConfig).toBeTruthy();
 
-            widget.destroy();
             widget = null;
         });
 
@@ -79,7 +108,7 @@ describe("widget abstract class unit test", () => {
 
             let widget: TestWidget = new TestWidget(config);
 
-            expect(widget.id).toBe((++(Widget as any).id).toString(36));
+            expect(widget.id).toBe(((Widget as any).id).toString(36));
             expect(widget.className).toBe(config.className);
             expect(widget.isShow).toBe(config.show);
             expect(widget.events).toBe(config.events);
@@ -90,9 +119,114 @@ describe("widget abstract class unit test", () => {
             widget = null;
         });
 
-        it("and should render", () => {
-            // render
+        it("and methods should work correctly", () => {
+
+            function myEvent(ths: Widget, a1: number, a2: string) {
+                // empty line
+            }
+
+            let widget: TestWidget = new TestWidget({
+                bindTo: div,
+                events: {
+                    eventOne: myEvent,
+                    eventTwo: myEvent,
+                },
+            });
+
+            const arg1: number = 1;
+            const arg2: string = "string";
+            let rightArgs: boolean;
+
+            spyOn(widget.events, "eventOne").and.callFake((ths: Widget, a1: number, a2: string) => {
+                rightArgs = ths === widget && arg1 === a1 && arg2 === a2;
+            });
+
+            spyOn(widget.events, "eventTwo");
+
+            widget.show();
+            expect(widget.hasCl(widget.container, classHide)).toBeFalsy();
+            widget.show(false);
+            expect(widget.hasCl(widget.container, classHide)).toBeTruthy();
+            widget.show(true);
+            expect(widget.hasCl(widget.container, classHide)).toBeFalsy();
+
+            widget.hide();
+            expect(widget.hasCl(widget.container, classHide)).toBeTruthy();
+            widget.hide(false);
+            expect(widget.hasCl(widget.container, classHide)).toBeFalsy();
+            widget.hide(true);
+            expect(widget.hasCl(widget.container, classHide)).toBeTruthy();
+
+            widget.addCl(widget.container, "myClass");
+            expect(widget.hasCl(widget.container, "myClass")).toBeTruthy();
+            widget.removeCl(widget.container, "myClass");
+            expect(widget.hasCl(widget.container, "myClass")).toBeFalsy();
+
+            widget.setSize(10, 10);
+            expect(widget.container.style.width).toBe("10px");
+            expect(widget.container.style.height).toBe("10px");
+            widget.setSize(null, null);
+            expect(widget.container.style.width).toBe("");
+            expect(widget.container.style.height).toBe("");
+
+            widget.fire("eventOne", arg1, arg2);
+            expect(rightArgs).toBeTruthy();
+
+            const eventTwo = widget.events.eventTwo;
+            delete widget.events.eventTwo;
+            widget.fire("eventTwo", arg1, arg2);
+            expect(eventTwo).not.toHaveBeenCalled();
+
+            widget.destroy();
+            widget = null;
         });
-        
+
+        it("and should render", () => {
+            let widget: TestWidget;
+
+            widget = new TestWidget({
+                className: "myClass",
+                show: false,
+                width: 100,
+                height: 100,
+            });
+
+            expect(widget.container).toBeNull();
+
+            widget.bindTo(div);
+
+            expect(widget.container).not.toBeNull();
+            expect(widget.hasCl(widget.container, classHide)).toBeTruthy();
+            expect(widget.hasCl(widget.container, "myClass")).toBeTruthy();
+            expect(widget.container.style.width).toBe("100px");
+            expect(widget.container.style.height).toBe("100px");
+
+            widget.destroy();
+
+            widget = new TestWidget({
+                bindTo: div,
+            });
+
+            expect(widget.container).not.toBeNull();
+        });
+
     });
+/*
+    it("must be destroyed", () => {
+        let widget: TestWidget = null;
+        const config: IConfig = {
+            bindTo: div,
+            myEvent: () => {
+                // empty line
+            },
+        };
+
+        try {
+            widget = new TestWidget(config);
+        } catch (e) {
+            console.log(e);
+        }
+
+    });
+    */
 });

@@ -72,7 +72,14 @@ export abstract class Widget {
 
         bindTo.appendChild(this.container);
         this.show(this.isShow);
-        this.setSize(this.width, this.height);
+
+        const w: number = this.width;
+        const h: number = this.height;
+
+        this.width = null;
+        this.height = null;
+
+        this.setSize(w, h);
         this.afterRender();
     }
 
@@ -86,6 +93,10 @@ export abstract class Widget {
         }
     }
 
+    public hide(hide?: boolean): void {
+        this.show(hide === false);
+    }
+
     public setSize(width: number, height: number): void {
         if (this.container) {
             if (this.width !== width) {
@@ -93,16 +104,12 @@ export abstract class Widget {
             }
 
             if (this.height !== height) {
-                this.container.style.width = height === null ? "" : (height + "px");
+                this.container.style.height = height === null ? "" : (height + "px");
             }
         }
 
         this.width = width;
         this.height = height;
-    }
-
-    public hide(hide?: boolean): void {
-        this.show(hide !== false);
     }
 
     public self(): any { // TODO
@@ -131,7 +138,10 @@ export abstract class Widget {
         }
 
         this.id = null;
+        this.events = null;
+
         this.cacheEvent.off();
+        this.cacheEvent = null;
 
         if (this.container !== null) {
             this.container.parentNode.removeChild(this.container);

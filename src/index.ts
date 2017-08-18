@@ -12,7 +12,7 @@ import { isEnablePrintWarn, setEnablePrintWarn } from "./modules/PrintWarn";
 
 export = ChartTime;
 */
-
+/*
 import { Full } from "./modules/buttons/Full";
 import { Damage } from "./modules/buttons/Damage";
 
@@ -22,16 +22,17 @@ const chartTime = {
     settings: {},
 };
 
-const button1: Full = new Full({
+(window as any).button1 = new Full({
     chartTime: chartTime,
     // bindTo: document.body,
 });
 
-const button2: Damage = new Damage({
+(window as any).button2 = new Damage({
     chartTime: chartTime,
 });
 
 setTimeout(() => {
-    button1.bindTo(document.body);
-    button2.bindTo(document.body);
+    //(window as any).button1.bindTo(document.body);
+    //(window as any).button2.bindTo(document.body);
 }, 1000);
+*/
