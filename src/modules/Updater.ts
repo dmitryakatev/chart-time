@@ -27,6 +27,7 @@ export class Updater<T extends IInstance> {
     public update(config: any[], instacnes: T[] = []): T[] {
         const result: T[] = [];
 
+        const indexes: { [propName: string]: number } = {};
         const ln: number = config.length;
         let defaultType: string;
         let group: { [propName: string]: T[] };
@@ -39,11 +40,15 @@ export class Updater<T extends IInstance> {
             group = { [defaultType]: instacnes };
         }
 
+        Object.keys(group).forEach((key) => {
+            indexes[key] = 0;
+        });
+
         for (let i: number = 0, type: string, instance: T; i < ln; ++i) {
             type = config[i].type || defaultType;
 
-            if (group.hasOwnProperty(type) && group[type].length > 0) {
-                instance = group[type].pop();
+            if (group.hasOwnProperty(type) && group[type].length > indexes[type]) {
+                instance = group[type][indexes[type]++];
                 this.cUpdate(instance, config[i]);
             } else {
                 instance = this.cCreate(config[i]);
@@ -52,12 +57,12 @@ export class Updater<T extends IInstance> {
             result.push(instance);
         }
 
-        this.clean(group);
+        this.clean(group, indexes);
 
         return result;
     }
 
-    private clean(group: { [propName: string]: T[] }): void {
+    private clean(group: { [propName: string]: T[] }, indexes: { [propName: string]: number }): void {
         let i: number;
         let ln: number;
         let list: T[];
@@ -65,7 +70,7 @@ export class Updater<T extends IInstance> {
         for (const key in group) {
             if (group.hasOwnProperty(key)) {
                 list = group[key];
-                for (i = 0, ln = list.length; i < ln; ++i) {
+                for (i = indexes[key], ln = list.length; i < ln; ++i) {
                     this.cClean(list[i]);
                 }
             }

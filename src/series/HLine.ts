@@ -8,18 +8,18 @@ export class HLine extends BaseSeries {
     public static tooltipValues: { [propName: string]: (list: IItem[], accessor: Accessor) => string } = {
         first: (list: IItem[], accessor: Accessor): string => {
             const value: number = accessor(list[0]);
-            return value === null ? "" : value.toString();
+            return value === null || value === undefined ? "" : value.toString();
         },
         last: (list: IItem[], accessor: Accessor): string => {
             const value: number = accessor(list[list.length - 1]);
-            return value === null ? "" : value.toString();
+            return value === null || value === undefined ? "" : value.toString();
         },
         concat: (list: IItem[], accessor: Accessor): string => {
             const values: number[] = [];
 
             list.forEach((item: IItem) => {
                 const value: number = accessor(item);
-                if (value !== null) {
+                if (value !== null &&  value !== undefined) {
                     values.push(value);
                 }
             });

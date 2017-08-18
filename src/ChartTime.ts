@@ -328,6 +328,23 @@ export class ChartTime {
         this.redraw();
     }
 
+    public setTimeLine(date: Date, isCenter?: boolean): void {
+        const sizeBody: number[] = this.getSizeBody();
+
+        this._setTimeLine(date);
+
+        if (isCenter && this.valTime) {
+            const xScale: IScale = this.xScalesToDraw[0];
+            const percent: number = (this.valTime.getTime() - xScale.min) / (xScale.max - xScale.min);
+            const bodyWidth: number = sizeBody[0];
+            const offset: number = (bodyWidth / 2) - (bodyWidth * this.scale * percent);
+
+            this.setOffset(offset);
+        } else {
+            this.updateTimeLine(sizeBody);
+        }
+    }
+
     public getDom(): HTMLDivElement {
         return this.container;
     }
@@ -571,14 +588,11 @@ export class ChartTime {
             const bodyWidth: number = sizeBody[0];
             const x: number = bodyWidth * this.scale * percent + this.offset;
 
-            if (x >= 0 && x <= bodyWidth) {
-                this.timeLine.style.display = "block";
-                this.timeLine.style.left = x + "px";
-                return;
-            }
+            this.timeLine.style.display = "block";
+            this.timeLine.style.left = x + "px";
+        } else {
+            this.timeLine.style.display = "none";
         }
-
-        this.timeLine.style.display = "none";
     }
 
     private recalculate(series: ISeries[], sizeBody: number[]): void {
@@ -764,6 +778,27 @@ export class ChartTime {
         this.offset = offset;
     }
 
+    private _setTimeLine(date: Date): void {
+        const xScale: IScale = this.xScalesToDraw[0];
+
+        if (date === null || xScale.min === null || xScale.max === null) {
+            this.valTime = null;
+            return;
+        }
+
+        const time: number = date.getTime();
+
+        if (time < xScale.min) {
+            date = new Date(xScale.min);
+        }
+
+        if (xScale.max < time) {
+            date = new Date(xScale.max);
+        }
+
+        this.valTime = date;
+    }
+
     private initEvent(): void {
         let isDraged: boolean;
         this.cacheEvent = new CacheEvent();
@@ -776,8 +811,7 @@ export class ChartTime {
             (event: MouseEvent, width: number, height: number) => {
                 if (!isDraged) {
                     // time-line
-                    this.valTime = this.rawTime;
-                    this.updateTimeLine(this.getSizeBody());
+                    this.setTimeLine(this.rawTime);
 
                     if (this.events.onChangeTimeLine) {
                         this.events.onChangeTimeLine(this);

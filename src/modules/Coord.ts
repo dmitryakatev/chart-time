@@ -23,7 +23,7 @@ export class Coord {
     }
 
     public getY(item: IItem): number {
-        return item[this.keyX] === null ? null : (this.top + item[this.keyY]);
+        return item[this.keyY] === null ? null : (this.top + item[this.keyY]);
     }
 
     public getOffset(): number {
