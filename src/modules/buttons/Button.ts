@@ -28,17 +28,15 @@ export abstract class Button extends Widget {
     public afterRender(): void {
         this.container.innerHTML = this.self().icon;
 
-        if (this.title) {
-            this.container.setAttribute("data-tooltip", this.title);
-            this.tooltip = new Tooltip({
-                target: this.container,
-                events: {
-                    onCreate: (tooltip: Tooltip) => {
-                        console.log(tooltip);
-                    },
+        this.tooltip = new Tooltip({
+            target: this.container,
+            show: !!this.title,
+            events: {
+                onCreate: (tooltip: Tooltip, event: MouseEvent) => {
+                    tooltip.update([this.title]);
                 },
-            });
-        }
+            },
+        });
     }
 
     public destroy(): void {

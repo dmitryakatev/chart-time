@@ -2,6 +2,11 @@ import { Widget, IConfig } from "./Widget";
 
 import "../less/tooltip.less";
 
+interface ICoordinate {
+    x: number;
+    y: number;
+}
+
 export class Tooltip extends Widget {
 
     public static config: IConfig = {
@@ -17,10 +22,15 @@ export class Tooltip extends Widget {
         // },
     };
 
+    public static template: string = "<div class=\"chart-time-tooltip\"></div>";
+
     public margin: number;
     public showDelay: number;
     public hideDelay: number;
     public saveDelay: number;
+
+    private lastX: number;
+    private lastY: number;
 
     public init(config: IConfig): void {
         config.bindTo = null;
@@ -38,35 +48,92 @@ export class Tooltip extends Widget {
                 console.log("down");
             },
             mousemove: (event: MouseEvent) => {
-                if (this.isShow) {
-                    if (!this.container) {
-                        this.bindTo(document.body);
-                        this.fire("onCreate", event);
-                    }
-
-                    this.moveTooltip(event);
+                if (!this.isShow) {
+                    return;
                 }
-                // console.log(event);
-                // console.log("move");
+
+                this.lastX = event.clientX;
+                this.lastY = event.clientY;
+
+                if (!this.container) {
+                    this.createTooltip(event);
+                }
+
+                this.moveTooltip(event);
             },
             mouseleave: (event: MouseEvent) => {
-                // console.log(event);
-                // console.log("leave");
+                this.removeTooltip(event);
             },
         });
     }
 
-    // onCreateTooltip
     public afterRender(): void {
         // empty
     }
 
+    public update(html: string[]): void {
+        this.container.innerHTML = html.join("");
+    }
+
+    private createTooltip(event: MouseEvent): void {
+        this.bindTo(document.body);
+        this.fire("onCreate", event);
+    }
+
     private moveTooltip(event: MouseEvent): void {
-        console.log(111);
+        this.fire("onMove", event);
+
+        const newCoordinate: ICoordinate = this.correction();
+
+        this.container.style.left = newCoordinate.x + "px";
+        this.container.style.top = newCoordinate.y + "px";
     }
 
     private removeTooltip(event: MouseEvent): void {
-        
+        if (!this.container) {
+            return;
+        }
+
+        this.container.parentNode.removeChild(this.container);
+    }
+
+    private correction(): ICoordinate {
+        const clientRect: ClientRect = this.container.getBoundingClientRect();
+
+        const bodyWidth: number = document.body.offsetWidth;
+        const bodyHeight: number = document.body.offsetHeight;
+
+        const endX: number = clientRect.width + this.lastX + this.margin;
+        const endY: number = clientRect.height + this.lastY + this.margin;
+
+        const needCorrectX: boolean = endX > bodyWidth;
+        const needCorrectY: boolean = endY > bodyHeight;
+
+        if (needCorrectX) {
+            if (needCorrectY) {
+                return {
+                    x: this.lastX - clientRect.width - this.margin,
+                    y: this.lastY - clientRect.height - this.margin,
+                };
+            } else {
+                return {
+                    x: this.lastX - (endX - bodyWidth),
+                    y: this.lastY + this.margin,
+                };
+            }
+        } else {
+            if (needCorrectY) {
+                return {
+                    x: this.lastX + this.margin,
+                    y: this.lastY - (endY - bodyHeight),
+                };
+            } else {
+                return {
+                    x: this.lastX + this.margin,
+                    y: this.lastY + this.margin,
+                };
+            }
+        }
     }
 }
 /*
@@ -296,31 +363,5 @@ export class Tooltip {
         return this.tooltip.style.display === "";
     }
 
-    private correction(): { x: number, y: number } {
-        const clientRect: ClientRect = this.tooltip.getBoundingClientRect();
-
-        const bodyWidth: number = document.body.offsetWidth;
-        const bodyHeight: number = document.body.offsetHeight;
-
-        const endX: number = clientRect.width + this.x + this.margin;
-        const endY: number = clientRect.height + this.y + this.margin;
-
-        const needCorrectX: boolean = endX > bodyWidth;
-        const needCorrectY: boolean = endY > bodyHeight;
-
-        if (needCorrectX) {
-            if (needCorrectY) {
-                return { x: this.x - clientRect.width - this.margin, y: this.y - clientRect.height - this.margin };
-            } else {
-                return { x: this.x - (endX - bodyWidth), y: this.y + this.margin };
-            }
-        } else {
-            if (needCorrectY) {
-                return { x: this.x + this.margin, y: this.y - (endY - bodyHeight) };
-            } else {
-                return { x: this.x + this.margin, y: this.y + this.margin };
-            }
-        }
-    }
 }
 */
