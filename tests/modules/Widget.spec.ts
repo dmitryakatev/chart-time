@@ -109,7 +109,6 @@ describe("widget abstract class unit test", () => {
 
             let widget: TestWidget = new TestWidget(config);
 
-            expect(widget.id).toBe(((Widget as any).id).toString(36));
             expect(widget.className).toBe(config.className);
             expect(widget.isShow).toBe(config.show);
             expect(widget.events).toBe(config.events);

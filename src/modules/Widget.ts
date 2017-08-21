@@ -1,4 +1,4 @@
-import { isEnablePrintWarn } from "./PrintWarn";
+import { Component } from "./Component";
 import { CacheEvent } from "./CacheEvent";
 
 import { createDOM, mergeIf } from "./../utils/util";
@@ -7,7 +7,7 @@ export interface IConfig {
     [propName: string]: any;
 }
 
-export abstract class Widget {
+export abstract class Widget extends Component {
 
     public static prefixClass: string = "chart-time";
 
@@ -27,9 +27,6 @@ export abstract class Widget {
     //     return new Ctor(config);
     // }
 
-    private static id: number = 0;
-
-    public id: string;
     public className: string;
     public isShow: boolean;
 
@@ -43,7 +40,7 @@ export abstract class Widget {
     protected cacheEvent: CacheEvent;
 
     constructor(config?: IConfig) {
-        this.id = (++Widget.id).toString(36);
+        super();
         this.cacheEvent = new CacheEvent();
         this.init(this.mergeConfig(config));
     }
@@ -112,10 +109,6 @@ export abstract class Widget {
         this.height = height;
     }
 
-    public self(): any { // TODO
-        return Object.getPrototypeOf(this).constructor;
-    }
-
     public fire(...args: any[]): void {
         const eventName: string = args[0] as string;
         if (!this.events || !this.events.hasOwnProperty(eventName)) {
@@ -128,16 +121,8 @@ export abstract class Widget {
     }
 
     public destroy(): void {
-        if (this.id === null) {
-            if (isEnablePrintWarn()) {
-                console.warn("widget destroyed!");
-                console.warn(this);
-            }
+        super.destroy();
 
-            return;
-        }
-
-        this.id = null;
         this.events = null;
 
         this.cacheEvent.off();
