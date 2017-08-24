@@ -2,12 +2,15 @@ import { Widget, IConfig } from "./../Widget";
 import { Tooltip } from "./../Tooltip2";
 import { ChartTime } from "./../../ChartTime";
 
+import { mergeIf } from "./../../utils/util";
+
 import "./../../less/icons/icon.less";
 
 export abstract class Button extends Widget {
 
     public static config: IConfig = {
         chartTime: null,
+        tooltip: {},
     };
 
     public static template: string = "<div class=\"chart-time-icon-wrap\"></div>";
@@ -22,21 +25,22 @@ export abstract class Button extends Widget {
         super.init(config);
 
         this.chartTime = config.chartTime;
-        this.title = config.tooltip;
-    }
+        this.title = config.title;
 
-    public afterRender(): void {
-        this.container.innerHTML = this.self().icon;
-
-        this.tooltip = new Tooltip({
-            target: this.container,
+        this.tooltip = new Tooltip(mergeIf({
+            target: null,
             show: !!this.title,
             events: {
                 onCreate: (tooltip: Tooltip, event: MouseEvent) => {
                     tooltip.update([this.title]);
                 },
             },
-        });
+        }, config.tooltip));
+    }
+
+    public afterRender(): void {
+        this.container.innerHTML = this.self().icon;
+        this.tooltip.setTarget(this.container);
     }
 
     public destroy(): void {

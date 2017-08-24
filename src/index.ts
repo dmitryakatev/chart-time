@@ -22,10 +22,29 @@ const chartTime = {
     settings: {},
 };
 
-(window as any).button1 = new Full({ chartTime });
-(window as any).button2 = new Damage({ chartTime });
+(window as any).button1 = new Full({
+    chartTime,
+    tooltip: {
+        showDelay: 5000,
+        hideDelay: 3000,
+        saveDelay: 1000,
+    },
+});
+
+(window as any).button2 = new Damage({
+    chartTime,
+    tooltip: {
+        showDelay: 5000,
+        hideDelay: 3000,
+        saveDelay: 1000,
+    },
+});
 
 setTimeout(() => {
-    (window as any).button1.bindTo(document.body);
-    (window as any).button2.bindTo(document.body);
+    const div: HTMLDivElement =  document.createElement("div") as HTMLDivElement;
+    document.body.appendChild(div);
+    div.style.padding = "50px";
+
+    (window as any).button1.bindTo(div);
+    (window as any).button2.bindTo(div);
 }, 1000);

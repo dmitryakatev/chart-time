@@ -25,17 +25,15 @@ export class Tooltip extends Widget {
     public static template: string = "<div class=\"chart-time-tooltip\"></div>";
 
     public margin: number;
-    public showDelay: number;
-    public hideDelay: number;
-    public saveDelay: number;
+    public showDelay: number; // время через которое тултип будет показан
+    public hideDelay: number; // время через которое тултип будет спрятан
+    public saveDelay: number; // время игнорирования showDelay перескакивая между тултипами
 
-    private showDelayTime: number;
-    private hideDelayTime: number;
+    private showDelayTime: number; // таймер для showDelay
+    private hideDelayTime: number; // таймер для hideDelay
 
-    private disableShow: boolean;
-
-    private lastX: number;
-    private lastY: number;
+    private lastEvent: MouseEvent; // последнее событие
+    private blocking: boolean;     // блокирование создания тултипа
 
     public init(config: IConfig): void {
         config.bindTo = null;
@@ -47,54 +45,15 @@ export class Tooltip extends Widget {
         this.hideDelay = config.hideDelay;
         this.saveDelay = config.saveDelay;
 
-        this.cacheEvent.on(config.target, {
-            mousedown: (event: MouseEvent) => {
-                // console.log(event);
-                console.log("down");
-            },
-            mousemove: (event: MouseEvent) => {
-                if (!this.isShow) {
-                    return;
-                }
+        this.showDelayTime = null;
+        this.hideDelayTime = null;
 
-                this.lastX = event.clientX;
-                this.lastY = event.clientY;
+        this.blocking = false;
 
-                if (!this.container) {
-                    this.createTooltip(event);
-                }
-
-                this.moveTooltip(event);
-            },
-            mouseleave: (event: MouseEvent) => {
-                this.removeTooltip(event);
-            },
-        });
-    }
-
-    //отложенный вызов тултипа
-    public delayShow(event: MouseEvent): void {
-        if (this.showDelay > 0) {
-            if (this.disableShow) {
-                this.showDelayTime = setTimeout(() => {
-                    this.disableShow = false;
-                }, this.showDelay);
-            }
-
-            
-            return;
+        if (config.target) {
+            this.setTarget(config.target);
         }
     }
-
-    public delayShowStop(): void {
-        this.disableShow = true;
-        if (this.showDelayTime !== null) {
-            clearTimeout(this.showDelayTime);
-            this.showDelayTime = null;
-        }
-    }
-
-
 
     public afterRender(): void {
         // empty
@@ -104,15 +63,106 @@ export class Tooltip extends Widget {
         this.container.innerHTML = html.join("");
     }
 
+    public setTarget(target: HTMLElement): void {
+        this.cacheEvent.on(target, {
+            mousedown: (event: MouseEvent) => {
+                this.blocking = true;
+                this.onMouseLeave(event);
+            },
+            mousemove: (event: MouseEvent) => {
+                if (!this.blocking) {
+                    this.onMouseMove(event);
+                }
+            },
+            mouseleave: (event: MouseEvent) => {
+                this.blocking = false;
+                this.onMouseLeave(event);
+            },
+        });
+    }
+
+    public destroy(): void {
+        this.onMouseLeave(null);
+        super.destroy();
+    }
+
+    // -----------------------
+    private onMouseMove(event: MouseEvent): void {
+        this.lastEvent = event;
+
+        if (this.container) {
+            this.moveTooltip(event);
+        } else {
+            this.delayCreateTooltip(event);
+        }
+    }
+
+    private onMouseLeave(event: MouseEvent): void {
+        this.delayCreateTooltipStop();
+        this.delayRemoveTooltipStop();
+
+        this.removeTooltip(event);
+        this.lastEvent = null;
+    }
+
+    // -----------------------
+    // отложенный вызов тултипа
+    private delayCreateTooltip(event: MouseEvent): void {
+        if (this.showDelay === 0) {
+            this.createTooltip(event);
+            return;
+        }
+
+        if (this.showDelayTime === null) {
+            this.showDelayTime = setTimeout(() => {
+                this.showDelayTime = null;
+                this.createTooltip(this.lastEvent);
+            }, this.showDelay);
+        }
+    }
+
+    // остановка отложенного вызова тултипа
+    private delayCreateTooltipStop(): void {
+        if (this.showDelayTime !== null) {
+            clearTimeout(this.showDelayTime);
+            this.showDelayTime = null;
+        }
+    }
+
+    // отложенное закрытие тултипа
+    private delayRemoveTooltip(): void {
+        if (this.hideDelay === 0) {
+            return;
+        }
+
+        this.hideDelayTime = setTimeout(() => {
+            this.hideDelayTime = null;
+            this.removeTooltip(this.lastEvent);
+            this.blocking = true;
+        }, this.hideDelay);
+    }
+
+    // остановка отложенного закрытия тултипа
+    private delayRemoveTooltipStop(): void {
+        if (this.hideDelayTime !== null) {
+            clearTimeout(this.hideDelayTime);
+            this.hideDelayTime = null;
+        }
+    }
+
+    // -----------------------
     private createTooltip(event: MouseEvent): void {
         this.bindTo(document.body);
         this.fire("onCreate", event);
+
+        this.delayRemoveTooltip();
+        this.moveTooltip(event);
     }
 
     private moveTooltip(event: MouseEvent): void {
         this.fire("onMove", event);
 
-        const newCoordinate: ICoordinate = this.correction();
+        const newCoordinate: ICoordinate = this.correction(event.clientX, event.clientY);
 
         this.container.style.left = newCoordinate.x + "px";
         this.container.style.top = newCoordinate.y + "px";
@@ -127,14 +177,15 @@ export class Tooltip extends Widget {
         this.container = null;
     }
 
-    private correction(): ICoordinate {
+    // -----------------------
+    private correction(x: number, y: number): ICoordinate {
         const clientRect: ClientRect = this.container.getBoundingClientRect();
 
         const bodyWidth: number = document.body.offsetWidth;
         const bodyHeight: number = document.body.offsetHeight;
 
-        const endX: number = clientRect.width + this.lastX + this.margin;
-        const endY: number = clientRect.height + this.lastY + this.margin;
+        const endX: number = clientRect.width + x + this.margin;
+        const endY: number = clientRect.height + y + this.margin;
 
         const needCorrectX: boolean = endX > bodyWidth;
         const needCorrectY: boolean = endY > bodyHeight;
@@ -142,25 +193,25 @@ export class Tooltip extends Widget {
         if (needCorrectX) {
             if (needCorrectY) {
                 return {
-                    x: this.lastX - clientRect.width - this.margin,
-                    y: this.lastY - clientRect.height - this.margin,
+                    x: x - clientRect.width - this.margin,
+                    y: y - clientRect.height - this.margin,
                 };
             } else {
                 return {
-                    x: this.lastX - (endX - bodyWidth),
-                    y: this.lastY + this.margin,
+                    x: x - (endX - bodyWidth),
+                    y: y + this.margin,
                 };
             }
         } else {
             if (needCorrectY) {
                 return {
-                    x: this.lastX + this.margin,
-                    y: this.lastY - (endY - bodyHeight),
+                    x: x + this.margin,
+                    y: y - (endY - bodyHeight),
                 };
             } else {
                 return {
-                    x: this.lastX + this.margin,
-                    y: this.lastY + this.margin,
+                    x: x + this.margin,
+                    y: y + this.margin,
                 };
             }
         }
