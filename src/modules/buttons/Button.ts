@@ -10,7 +10,11 @@ export abstract class Button extends Widget {
 
     public static config: IConfig = {
         chartTime: null,
-        tooltip: {},
+        tooltip: {
+            showDelay: 2000,
+            hideDelay: 2000,
+            saveDelay: 3000,
+        },
     };
 
     public static template: string = "<div class=\"chart-time-icon-wrap\"></div>";
@@ -24,18 +28,25 @@ export abstract class Button extends Widget {
     public init(config: IConfig): void {
         super.init(config);
 
-        this.chartTime = config.chartTime;
-        this.title = config.title;
-
-        this.tooltip = new Tooltip(mergeIf({
+        const tooltipConfig: IConfig = mergeIf({
             target: null,
-            show: !!this.title,
+            // show: !!this.title,
             events: {
                 onCreate: (tooltip: Tooltip, event: MouseEvent) => {
                     tooltip.update([this.title]);
                 },
             },
-        }, config.tooltip));
+        },
+            config.tooltip || {},
+            Button.config.tooltip,
+            this.self().config.tooltip,
+        );
+
+        this.chartTime = config.chartTime;
+        this.title = tooltipConfig.title;
+
+        tooltipConfig.show = !!this.title;
+        this.tooltip = new Tooltip(tooltipConfig);
     }
 
     public afterRender(): void {

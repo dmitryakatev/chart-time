@@ -7,7 +7,9 @@ import "./../../less/icons/group.less";
 export class Group extends Button {
 
     public static config: IConfig = {
-        tooltip: "Вкл/Выкл группировку",
+        tooltip: {
+            title: "Вкл/Выкл группировку",
+        },
         chartGroup: null,
     };
 

@@ -6,7 +6,9 @@ import "./../../less/icons/full.less";
 export class Full extends Button {
 
     public static config: IConfig = {
-        tooltip: "Первоначальный вид графика",
+        tooltip: {
+            title: "Первоначальный вид графика",
+        },
     };
 
     public static icon: string = [

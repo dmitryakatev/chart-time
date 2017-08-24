@@ -25,18 +25,18 @@ const chartTime = {
 (window as any).button1 = new Full({
     chartTime,
     tooltip: {
-        showDelay: 5000,
-        hideDelay: 3000,
-        saveDelay: 1000,
+        showDelay: 2000,
+        hideDelay: 2000,
+        saveDelay: 3000,
     },
 });
 
 (window as any).button2 = new Damage({
     chartTime,
     tooltip: {
-        showDelay: 5000,
-        hideDelay: 3000,
-        saveDelay: 1000,
+        showDelay: 2000,
+        hideDelay: 2000,
+        saveDelay: 3000,
     },
 });
 
@@ -47,4 +47,4 @@ setTimeout(() => {
 
     (window as any).button1.bindTo(div);
     (window as any).button2.bindTo(div);
-}, 1000);
+}, 100);
