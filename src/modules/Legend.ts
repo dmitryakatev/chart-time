@@ -264,7 +264,7 @@ export class Legend {
         return "<div class=\"chart-time-legend-item\" data-key=\"" + s.id + "\">" +
             "<div class=\"chart-time-legend-item-color\"" +
                 " style=\"background-color: " + s.color + ";opacity: " + s.opacity + "\">" +
-            "</div>" +
+            "&nbsp;</div>" +
             "<span class=\"chart-time-legend-item-text\">" + s.title + "</span>" +
          "</div>";
     }
