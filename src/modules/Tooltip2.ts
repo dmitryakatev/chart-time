@@ -7,6 +7,8 @@ interface ICoordinate {
     y: number;
 }
 
+let time: number = null;
+
 export class Tooltip extends Widget {
 
     public static config: IConfig = {
@@ -77,6 +79,8 @@ export class Tooltip extends Widget {
             mouseleave: (event: MouseEvent) => {
                 this.blocking = false;
                 this.onMouseLeave(event);
+
+                time = (new Date()).getTime();
             },
         });
     }
@@ -114,6 +118,11 @@ export class Tooltip extends Widget {
         }
 
         if (this.showDelayTime === null) {
+            if (this.saveDelay > 0 && (new Date()).getTime() - time < this.saveDelay) {
+
+            } else {
+                
+            }
             this.showDelayTime = setTimeout(() => {
                 this.showDelayTime = null;
                 this.createTooltip(this.lastEvent);

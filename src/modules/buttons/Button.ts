@@ -28,25 +28,18 @@ export abstract class Button extends Widget {
     public init(config: IConfig): void {
         super.init(config);
 
-        const tooltipConfig: IConfig = mergeIf({
+        this.chartTime = config.chartTime;
+        this.title = config.title;
+
+        this.tooltip = new Tooltip(mergeIf({
             target: null,
-            // show: !!this.title,
+            show: !!this.title,
             events: {
                 onCreate: (tooltip: Tooltip, event: MouseEvent) => {
                     tooltip.update([this.title]);
                 },
             },
-        },
-            config.tooltip || {},
-            Button.config.tooltip,
-            this.self().config.tooltip,
-        );
-
-        this.chartTime = config.chartTime;
-        this.title = tooltipConfig.title;
-
-        tooltipConfig.show = !!this.title;
-        this.tooltip = new Tooltip(tooltipConfig);
+        }, config.tooltip || {}, Button.config.tooltip));
     }
 
     public afterRender(): void {

@@ -29,9 +29,7 @@ on(document, {
 export class Damage extends Button {
 
     public static config: IConfig = {
-        tooltip: {
-            title: "Качество фильрации точек",
-        },
+        title: "Качество фильрации точек",
         options: [{
             text: "Высокое качество",
             damage: 1,
