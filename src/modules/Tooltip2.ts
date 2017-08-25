@@ -117,12 +117,12 @@ export class Tooltip extends Widget {
             return;
         }
 
-        if (this.showDelayTime === null) {
-            if (this.saveDelay > 0 && (new Date()).getTime() - time < this.saveDelay) {
+        if (this.saveDelay > 0 && (new Date()).getTime() - time <= this.saveDelay) {
+            this.createTooltip(event);
+            return;
+        }
 
-            } else {
-                
-            }
+        if (this.showDelayTime === null) {
             this.showDelayTime = setTimeout(() => {
                 this.showDelayTime = null;
                 this.createTooltip(this.lastEvent);
