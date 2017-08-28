@@ -1,9 +1,17 @@
-/*import { ChartTime } from "./ChartTime";
-import { ChartGroup } from "./ChartGroup";
+import { ChartTime } from "./ChartTime";
+// import { ChartGroup } from "./ChartGroup";
+
+import { Damage } from "./modules/buttons/Damage";
+import { Full } from "./modules/buttons/Full";
+// import { Group } from "./modules/buttons/Group";
 
 import { isEnablePrintWarn, setEnablePrintWarn } from "./modules/PrintWarn";
 
-(ChartTime as any).ChartGroup = ChartGroup;
+// (ChartTime as any).ChartGroup = ChartGroup;
+
+ChartTime.injectBtn("damage", Damage);
+ChartTime.injectBtn("full", Full);
+// ChartTime.injectBtn("group", Group);
 
 (ChartTime as any).warn = {
     isEnable: isEnablePrintWarn,
@@ -11,8 +19,8 @@ import { isEnablePrintWarn, setEnablePrintWarn } from "./modules/PrintWarn";
 };
 
 export = ChartTime;
-*/
 
+/*
 import { Full } from "./modules/buttons/Full";
 import { Damage } from "./modules/buttons/Damage";
 
@@ -48,3 +56,4 @@ setTimeout(() => {
     (window as any).button1.bindTo(div);
     (window as any).button2.bindTo(div);
 }, 100);
+*/

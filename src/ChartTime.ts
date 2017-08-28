@@ -1,7 +1,10 @@
 import { isEnablePrintWarn } from "./modules/PrintWarn";
 
-import { ILegendConfig, Legend } from "./modules/Legend";
+import { Legend } from "./modules/Legend";
 import { ITooltipConfig, Tooltip } from "./modules/Tooltip";
+
+import { Widget, IConfig } from "./modules/Widget";
+import { Button, IButtonCtor } from "./modules/buttons/Button";
 
 import { XScale } from "./scales/XScale";
 import { YScale } from "./scales/YScale";
@@ -43,8 +46,6 @@ export interface ISettings {
     hypersensitivity: number; // во сколько раз уменьшать прозрачность других серий, если есть активная
     usePointerLine: boolean;  // использовать горизонтальную линию
     useTimeLine: boolean;     // использовать линию timeLine
-    showBtnQuality: boolean;  // показывать\скрывать кнопку для изменения качества фильтрации
-    showBtnFull: boolean;     // показывать\скрывать кнопку для восстановления графика
 }
 
 export interface IChartTimeConfig extends IChartTimeSource {
@@ -53,7 +54,7 @@ export interface IChartTimeConfig extends IChartTimeSource {
     height?: number;
     show?: boolean;
     events?: IChartTimeEvents;
-    legend?: ILegendConfig;
+    legend?: IConfig;
     tooltip?: ITooltipConfig;
     settings?: ISettings;
     disableRedraw?: boolean;
@@ -86,6 +87,14 @@ const defaultConfig = {
     height: 300,
     show: true,
     disableRedraw: false,
+    legend: {
+        buttons: ["damage", "full"],
+        tooltip: {
+            showDelay: 1000,
+            hideDelay: 3000,
+            saveDelay: 1000,
+        },
+    },
 };
 
 const defaultSettings = {
@@ -106,8 +115,14 @@ const X_SCALE_NANE: string = "xscale_" + Math.random().toString(36).substr(2, 8)
 const coordChartTime = new Coord(); // TODO !!!
 
 export class ChartTime {
+    public static buttons: { [propName: string]: IButtonCtor } = {};
+
+    public static injectBtn(name: string, ctor: IButtonCtor): void {
+        ChartTime.buttons[name] = ctor;
+    }
 
     private static id: number = 0;
+
     public id: string;
     public type: string = "chartTime";
 
@@ -888,13 +903,15 @@ export class ChartTime {
         }
     }
 
-    private initLegend(config: ILegendConfig): void {
+    private initLegend(config: IConfig): void {
         const me: ChartTime = this;
         const delayRedraw = delay(200, () => {
             if (this.container) { // destroyed
                 this.redraw();
             }
         });
+
+        config.bindTo = this.container;
 
         config.events = {
             onChangeWidth(legend: Legend): void {
@@ -922,8 +939,21 @@ export class ChartTime {
             },
         };
 
-        this.legend = new Legend(this.container, config);
+        this.legend = new Legend(config);
 
+        if (config.buttons) {
+            config.buttons.forEach((button: string) => {
+                const ctor: IButtonCtor = ChartTime.buttons[button];
+                const btn: Button = new ctor({
+                    chartTime: this,
+                    tooltip: config.tooltip,
+                });
+
+                this.legend.addBtn(btn);
+            });
+        }
+
+        /*
         this.legend.addBtn([
             "<div class=\"chart-time-icon chart-time-icon-spanner\">",
                  "<div class=\"chart-time-icon-spanner-context\">",
@@ -1012,7 +1042,7 @@ export class ChartTime {
                     }
                 },
             });
-        });
+        });*/
     }
 
     private initTooltip(config: ITooltipConfig): void {

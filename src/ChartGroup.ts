@@ -1,3 +1,4 @@
+/*
 import { isEnablePrintWarn } from "./modules/PrintWarn";
 
 import { ChartTime, IChartTimeConfig, IChartTimeEvents, ISettings } from "./ChartTime";
@@ -50,11 +51,11 @@ const defaultConfig = {
 const template: string = [
     "<div class=\"chart-time-group\"></div>",
 ].join("");
-
+*/
 export class ChartGroup {
     public width: number;
     public height: number;
-
+/*
     public source: any;
     public charts: ChartTime[];
     public scales: IScale[];
@@ -477,5 +478,5 @@ export class ChartGroup {
                 delete this.config.source[sourceName];
             }
         }
-    }
+    }*/
 }

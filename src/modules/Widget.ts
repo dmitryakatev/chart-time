@@ -70,14 +70,8 @@ export abstract class Widget extends Component {
         bindTo.appendChild(this.container);
         this.show(this.isShow);
 
-        const w: number = this.width;
-        const h: number = this.height;
-
-        this.width = null;
-        this.height = null;
-
-        this.setSize(w, h);
         this.afterRender();
+        this.setSize(this.width, this.height);
     }
 
     public abstract afterRender(): void;
@@ -96,13 +90,8 @@ export abstract class Widget extends Component {
 
     public setSize(width: number, height: number): void {
         if (this.container) {
-            if (this.width !== width) {
-                this.container.style.width = width === null ? "" : (width + "px");
-            }
-
-            if (this.height !== height) {
-                this.container.style.height = height === null ? "" : (height + "px");
-            }
+            this.container.style.width = width === null ? "" : (width + "px");
+            this.container.style.height = height === null ? "" : (height + "px");
         }
 
         this.width = width;

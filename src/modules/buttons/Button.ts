@@ -6,6 +6,10 @@ import { mergeIf } from "./../../utils/util";
 
 import "./../../less/icons/icon.less";
 
+export interface IButtonCtor {
+    new (config: IConfig): Button;
+}
+
 export abstract class Button extends Widget {
 
     public static config: IConfig = {
