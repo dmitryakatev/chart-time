@@ -1,4 +1,4 @@
-import { Tooltip } from "./../../src/modules/Tooltip2";
+import { Tooltip } from "./../../src/modules/Tooltip";
 
 const div: HTMLDivElement = document.createElement("div") as HTMLDivElement;
 

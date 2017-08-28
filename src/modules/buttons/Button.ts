@@ -1,5 +1,5 @@
 import { Widget, IConfig } from "./../Widget";
-import { Tooltip } from "./../Tooltip2";
+import { Tooltip } from "./../Tooltip";
 import { ChartTime } from "./../../ChartTime";
 
 import { mergeIf } from "./../../utils/util";

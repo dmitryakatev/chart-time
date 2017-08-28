@@ -1,7 +1,7 @@
 import { isEnablePrintWarn } from "./modules/PrintWarn";
 
 import { Legend } from "./modules/Legend";
-import { Tooltip } from "./modules/Tooltip2";
+import { Tooltip } from "./modules/Tooltip";
 
 import { Widget, IConfig } from "./modules/Widget";
 import { Button, IButtonCtor } from "./modules/buttons/Button";
