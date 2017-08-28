@@ -1,7 +1,7 @@
 import { isEnablePrintWarn } from "./modules/PrintWarn";
 
 import { Legend } from "./modules/Legend";
-import { ITooltipConfig, Tooltip } from "./modules/Tooltip";
+import { Tooltip } from "./modules/Tooltip2";
 
 import { Widget, IConfig } from "./modules/Widget";
 import { Button, IButtonCtor } from "./modules/buttons/Button";
@@ -55,7 +55,7 @@ export interface IChartTimeConfig extends IChartTimeSource {
     show?: boolean;
     events?: IChartTimeEvents;
     legend?: IConfig;
-    tooltip?: ITooltipConfig;
+    tooltip?: IConfig;
     settings?: ISettings;
     disableRedraw?: boolean;
 }
@@ -322,7 +322,7 @@ export class ChartTime {
         this.rawTime = null;
         this.valTime = null;
 
-        this.tooltip.hide();
+        this.tooltip.remove();
 
         this.needCalculate = true;
         this.redraw();
@@ -387,7 +387,7 @@ export class ChartTime {
                 this.redraw();
             }
         } else {
-            this.tooltip.hide();
+            this.tooltip.remove();
         }
     }
 
@@ -1045,8 +1045,10 @@ export class ChartTime {
         });*/
     }
 
-    private initTooltip(config: ITooltipConfig): void {
+    private initTooltip(config: IConfig): void {
         const me: ChartTime = this;
+
+        config.target = this.wrapEvent;
 
         config.events = {
             onCreate(tooltip: Tooltip, event: MouseEvent) {
@@ -1092,7 +1094,7 @@ export class ChartTime {
                 const isNotTime: boolean = xScale.min === null || xScale.max === null;
                 const isUpdate: boolean = isInside && !isNotTime;
 
-                const tTip: HTMLDivElement = tooltip.getTooltip();
+                const tTip: HTMLDivElement = tooltip.container as HTMLDivElement;
 
                 if (me.settings.usePointerLine) {
                     if (isInside) {
@@ -1148,7 +1150,7 @@ export class ChartTime {
             },
         };
 
-        this.tooltip = new Tooltip(this.wrapEvent, config);
+        this.tooltip = new Tooltip(config);
     }
 
     private eachGroupSeries(series: ISeries[], type, arg: any, callback: (series: ISeries[], arg: any) => void): void {

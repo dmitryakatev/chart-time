@@ -15,6 +15,7 @@ export abstract class Button extends Widget {
     public static config: IConfig = {
         chartTime: null,
         tooltip: {
+            hideByClick: true,
             showDelay: 2000,
             hideDelay: 2000,
             saveDelay: 3000,

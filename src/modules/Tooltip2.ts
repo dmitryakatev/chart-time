@@ -12,8 +12,9 @@ let time: number = null;
 export class Tooltip extends Widget {
 
     public static config: IConfig = {
-        target: null, // DOM елемент, при наведении на который будет появляться тултип
-        margin: 15,   // отступ от координаты мыши
+        target: null,       // DOM елемент, при наведении на который будет появляться тултип
+        margin: 15,         // отступ от координаты мыши
+        hideByClick: false, // скрывать тултип по клику
         showDelay: 0, // через сколько секунд показывать тултип после наведения
         hideDelay: 0, // через сколько секунд прятать тултип после показа
         saveDelay: 0, // сколько секунд игнорировать showDelay
@@ -27,6 +28,7 @@ export class Tooltip extends Widget {
     public static template: string = "<div class=\"chart-time-tooltip\"></div>";
 
     public margin: number;
+    public hideByClick: boolean;
     public showDelay: number; // время через которое тултип будет показан
     public hideDelay: number; // время через которое тултип будет спрятан
     public saveDelay: number; // время игнорирования showDelay перескакивая между тултипами
@@ -42,6 +44,7 @@ export class Tooltip extends Widget {
         super.init(config);
 
         this.margin = config.margin;
+        this.hideByClick = config.hideByClick;
 
         this.showDelay = config.showDelay;
         this.hideDelay = config.hideDelay;
@@ -65,11 +68,17 @@ export class Tooltip extends Widget {
         this.container.innerHTML = html.join("");
     }
 
+    public remove(): void {
+        this.removeTooltip(null);
+    }
+
     public setTarget(target: HTMLElement): void {
         this.cacheEvent.on(target, {
             mousedown: (event: MouseEvent) => {
-                this.blocking = true;
-                this.onMouseLeave(event);
+                if (this.hideByClick) {
+                    this.blocking = true;
+                    this.onMouseLeave(event);
+                }
             },
             mousemove: (event: MouseEvent) => {
                 if (!this.blocking) {
@@ -181,6 +190,8 @@ export class Tooltip extends Widget {
         if (!this.container) {
             return;
         }
+
+        this.fire("onRemove");
 
         this.container.parentNode.removeChild(this.container);
         this.container = null;
