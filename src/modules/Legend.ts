@@ -17,18 +17,18 @@ export class Legend extends Widget {
         draggable: true,
         // events: {
         //     onChangeWidth: (legend: Legend) => {},
-        //     onSelectSeries: (legend: Legend) => {},
+        //     onSelectSeries: (legend: Legend, series: ISeries) => {},
         //     onHideSeries: (legend: Legend) => {}, // show or hide
         // },
     };
 
     public static template: string = [
         "<div class=\"chart-time-legend\">",
+            "<div class=\"chart-time-legend-drag\"></div>",
+            "<div class=\"chart-time-legend-tool\"></div>",
             "<div class=\"chart-time-legend-wrap\">", // chart-time-legend-wrap-top
                 "<div class=\"chart-time-legend-content\"></div>",
             "</div>",
-            "<div class=\"chart-time-legend-drag\"></div>",
-            "<div class=\"chart-time-legend-tool\"></div>", // chart-time-legend-tool-hide
         "</div>",
     ].join("");
 
@@ -118,6 +118,7 @@ export class Legend extends Widget {
         }
 
         if (this.container) {
+            this.showEl(this.content, !hide);
             hide ? this.addClass(this.tool, classSmall) : this.removeClass(this.tool, classSmall);
         }
 
@@ -135,35 +136,24 @@ export class Legend extends Widget {
     public addBtn(btn: Button): void {
         this.buttons.push(btn);
         btn.bindTo(this.tool);
-        this.showBtn(btn.isShow, this.tool.children.length - 1);
     }
 
-    public getBtn(index: number): HTMLDivElement {
-        return this.tool.children[index] as HTMLDivElement;
+    public getBtn(index: number): Button {
+        return this.buttons[index];
     }
 
     public showBtn(show: boolean, index?: number): void {
         show = show !== false;
 
-        let btn: HTMLDivElement;
-
         if (isNumeric(index)) {
-            btn = this.tool.children[index] as HTMLDivElement;
-            if (show === (btn.style.display === "none")) {
-                btn.style.display = show ? "" : "none";
-            }
-            this.showTool(show || this.isShowAnyBtn());
-
+            this.buttons[index].show(show);
             return;
         }
 
-        const ln: number = this.tool.children.length;
+        const ln: number = this.buttons.length;
         for (index = 0; index < ln; ++index) {
-            btn = this.tool.children[index] as HTMLDivElement;
-            btn.style.display = show ? "" : "none";
+            this.buttons[index].show(show);
         }
-
-        this.showTool(show);
     }
 
     public daggable(dragable: boolean): void {
@@ -254,20 +244,27 @@ export class Legend extends Widget {
     }
 
     private onHideSeries(event: MouseEvent): void {
-        const div: HTMLDivElement = this.findDom(event, "chart-time-legend-item", "chart-time-legend-content");
+        const classItem: string = "chart-time-legend-item";
+        const classContent: string = "chart-time-legend-content";
+        const classItemOff: string = "chart-time-legend-item-off";
+
+        const div: HTMLDivElement = this.findDom(event, classItem, classContent);
+
         if (div) {
             const s: ISeries = this.findSeries(div);
             s.show = s.show === false;
-            div.setAttribute("class", "chart-time-legend-item" + (s.show ? "" : " chart-time-legend-item-off"));
+            s.show ? this.removeClass(div, classItemOff) : this.addClass(div, classItemOff);
 
-            if (this.events.onHideSeries) {
-                this.events.onHideSeries(this);
-            }
+            this.fire("onHideSeries");
         }
     }
 
     private onSelectSeries(event: MouseEvent): void {
-        const div: HTMLDivElement = this.findDom(event, "chart-time-legend-item", "chart-time-legend-content");
+        const classItem: string = "chart-time-legend-item";
+        const classContent: string = "chart-time-legend-content";
+
+        const div: HTMLDivElement = this.findDom(event, classItem, classContent);
+
         let selected: ISeries = null;
 
         if (div) {
@@ -287,41 +284,18 @@ export class Legend extends Widget {
     private setSelected(selected: ISeries): void {
         if (this.selected !== selected) {
             this.selected = selected;
-
-            if (this.events.onSelectSeries) {
-                this.events.onSelectSeries(this);
-            }
+            this.fire("onSelectSeries", selected);
         }
-    }
-
-    private _show(show: boolean): boolean {
-        if (this.isShow !== show) {
-            this.isShow = show;
-            this.container.style.display = this.isShow ? "" : "none";
-            return true;
-        }
-
-        return false;
     }
 
     private isShowAnyBtn(): boolean {
-        const ch: HTMLCollection = this.tool.children;
-        const ln: number = ch.length;
+        const ln: number = this.buttons.length;
         for (let i: number = 0; i < ln; ++i) {
-            if ((ch[i] as HTMLDivElement).style.display !== "none") {
+            if (this.buttons[i].isShow) {
                 return true;
             }
         }
 
         return false;
-    }
-
-    private showTool(show: boolean): void {
-        let className: string;
-
-        className = "chart-time-legend-tool-hide";
-        show ? this.tool.classList.remove(className) : this.tool.classList.add(className);
-        className = "chart-time-legend-wrap-top";
-        show ? this.content.classList.remove(className) : this.content.classList.add(className);
     }
 }
