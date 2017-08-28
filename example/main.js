@@ -86,6 +86,7 @@ var chartGroup = new ChartTime.ChartGroup(div, config);
 
 var config = {
     bindTo: div,
+    width: 600,
     series: [{
         type: "line",
         title: "speed 2",

@@ -40,6 +40,7 @@ export abstract class Button extends Widget {
             show: !!this.title,
             events: {
                 onCreate: (tooltip: Tooltip, event: MouseEvent) => {
+                    this.addClass(tooltip.container, "chart-time-button-tooltip");
                     tooltip.update([this.title]);
                 },
             },
