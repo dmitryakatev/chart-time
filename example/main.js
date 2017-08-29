@@ -128,4 +128,4 @@ var config = {
     source: db,
 };
 
-var chart = new ChartTime(div, config);
+var chart = new ChartTime(config);

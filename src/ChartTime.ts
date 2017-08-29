@@ -90,9 +90,6 @@ export class ChartTime extends Widget {
 
     public type: string = "chartTime";
 
-    // public width: number;           // ширина
-    // public height: number;          // высота
-
     public offset: number;          // смещение (сдвиг слева)
     public scale: number;           // масштаб
 
@@ -100,14 +97,11 @@ export class ChartTime extends Widget {
     public series: ISeries[];       // список серий
     public scales: IScale[];        // список шкал по оси Y
 
-    // public isShow: boolean;         // показывать или скрыть график
+    public xScalesToDraw: IScale[]; // шкалы для отображения по оси X (будет 1 шкала, но храним как множество)
+    public yScalesToDraw: IScale[]; // шкалы для отображения по оси Y (фильтр от поля this.scales)
 
-    public xScalesToDraw: IScale[];   // шкалы для отображения по оси X (будет 1 шкала, но храним как множество)
-    public yScalesToDraw: IScale[];   // шкалы для отображения по оси Y (фильтр от поля this.scales)
+    public settings: any;           // найстройки отображения на канвасе (отступ, шрифт, размер текста, ...)
 
-    public settings: any;             // найстройки отображения на канвасе (отступ, шрифт, размер текста, ...)
-
-    // public events: IChartTimeEvents;  // события, которые могут происходить на графике
     public dragDrop: Drag;
 
     public legend: Legend;          // легенда
@@ -123,9 +117,6 @@ export class ChartTime extends Widget {
     private rawTime: Date;          // для timeLine
     private valTime: Date;          // для timeLine
 
-    // private cacheEvent: CacheEvent; // хранит привязанные события к DOM
-
-    // private container: HTMLDivElement;
     private content: HTMLDivElement;
     private wrapEvent: HTMLDivElement;
     private pointer: HTMLDivElement;
@@ -139,6 +130,8 @@ export class ChartTime extends Widget {
         // legend and tooltip
         this.initLegend(mergeIf({}, config.legend || {}, ChartTime.config.legend));
         this.initTooltip(mergeIf({}, config.tooltip || {}, ChartTime.config.tooltip));
+
+        super.init(config);
 
         // init scales
         const additionalScales: IScale[] = updateScales([{

@@ -41,6 +41,7 @@ export class Legend extends Widget {
     public series: ISeries[];
     public selected: ISeries;
 
+    private markup: string[];
     private buttons: Button[];
 
     private content: HTMLDivElement;
@@ -54,7 +55,7 @@ export class Legend extends Widget {
         this.selected = null;
         this.minWidth = config.minWidth;
         this.maxWidth = config.maxWidth;
-        this.isDraggable = config.dragable;
+        this.isDraggable = config.draggable;
 
         super.init(config);
     }
@@ -64,29 +65,50 @@ export class Legend extends Widget {
         this.tool = this.container.querySelector(".chart-time-legend-tool") as HTMLDivElement;
         this.drag = this.container.querySelector(".chart-time-legend-drag") as HTMLDivElement;
 
+        if (this.buttons) {
+            this.buttons.forEach((btn: Button) => {
+                btn.bindTo(this.tool);
+            });
+        }
+
+        if (this.markup) {
+            this.content.innerHTML = this.markup.join("");
+            this.markup = null;
+        }
+
+        if (this.series) {
+            this.load(this.series);
+        }
+
         this.initEvent();
         this.daggable(this.isDraggable);
     }
 
     public update(series: ISeries[]): void {
         const ln: number = series.length;
-        let markup = "";
+        const markup: string[] = [];
 
         for (let i: number = 0; i < ln; ++i) {
-            markup += this.getMarkupItem(series[i]);
+            markup.push(this.getMarkupItem(series[i]));
         }
 
-        this.content.innerHTML = markup;
+        if (this.content) {
+            this.content.innerHTML = markup.join("");
+        } else {
+            this.markup = markup;
+        }
     }
 
     public load(series: ISeries[]): void {
-        const children: HTMLCollection = this.content.children;
-        const ln: number = children.length;
-        let item: HTMLDivElement;
+        if (this.content) {
+            const children: HTMLCollection = this.content.children;
+            const ln: number = children.length;
+            let item: HTMLDivElement;
 
-        for (let i: number = 0; i < ln; ++i) {
-            item = children[i] as HTMLDivElement;
-            item.style.display = series[i].data ? "" : "none";
+            for (let i: number = 0; i < ln; ++i) {
+                item = children[i] as HTMLDivElement;
+                item.style.display = series[i].data ? "" : "none";
+            }
         }
 
         this.series = series;
@@ -135,7 +157,9 @@ export class Legend extends Widget {
 
     public addBtn(btn: Button): void {
         this.buttons.push(btn);
-        btn.bindTo(this.tool);
+        if (this.tool) {
+            btn.bindTo(this.tool);
+        }
     }
 
     public getBtn(index: number): Button {

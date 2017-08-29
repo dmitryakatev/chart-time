@@ -17,15 +17,10 @@ export abstract class Widget extends Component {
         show: true,
         width: null,
         height: null,
-        events: {},
+        // events: {},
     };
 
     public static template: string;
-
-    // public static create<T extends Widget>(config?: IConfig): T {
-    //     const Ctor = this as any;
-    //     return new Ctor(config);
-    // }
 
     public className: string;
     public isShow: boolean;
@@ -49,7 +44,7 @@ export abstract class Widget extends Component {
         this.className = config.className;
         this.isShow = config.show;
 
-        this.events = config.events;
+        this.events = config.events || {};
 
         this.width = config.width;
         this.height = config.height;
