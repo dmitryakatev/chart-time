@@ -137,8 +137,8 @@ export class ChartTime extends Widget {
         this.settings = mergeIf({}, config.settings || {}, ChartTime.settings);
 
         // legend and tooltip
-        this.initLegend(config.legend || {});
-        this.initTooltip(config.tooltip || {});
+        this.initLegend(mergeIf({}, config.legend || {}, ChartTime.config.legend));
+        this.initTooltip(mergeIf({}, config.tooltip || {}, ChartTime.config.tooltip));
 
         // init scales
         const additionalScales: IScale[] = updateScales([{
@@ -176,6 +176,9 @@ export class ChartTime extends Widget {
         this.timeLine = this.content.querySelector(".chart-time-line-time") as HTMLDivElement;
         this.canvas = this.content.querySelector("canvas") as HTMLCanvasElement;
         this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+
+        this.legend.bindTo(this.container);
+        this.tooltip.setTarget(this.wrapEvent);
 
         // events
         this.initEvent();
@@ -332,9 +335,7 @@ export class ChartTime extends Widget {
     }
 
     public show(show?: boolean) {
-        this.isShow = show !== false;
-
-        this.container.style.display = this.isShow ? "" : "none";
+        super.show(show);
 
         if (this.isShow) {
             if (this.dirtyDraw) {
@@ -346,17 +347,10 @@ export class ChartTime extends Widget {
     }
 
     public destroy(): void {
-        if (this.container === null) {
-            if (isEnablePrintWarn()) {
-                console.log("chart destroyed!");
-            }
-
-            return;
-        }
-
         this.tooltip.destroy();
-        this.legend.destroy();
         this.tooltip = null;
+
+        this.legend.destroy();
         this.legend = null;
 
         this.source = null;
@@ -364,21 +358,23 @@ export class ChartTime extends Widget {
         this.series = updateSeries([], this.series) && null;
         this.scales = updateScales([], this.scales) && null;
         this.xScalesToDraw = updateScales([], this.xScalesToDraw) && null;
+
         this.defaultScale.destroy();
+        this.defaultScale = null;
+
         this.mirrorScale.destroy();
+        this.mirrorScale = null;
+
         this.yScalesToDraw = null;
 
         this.settings = null;
-        this.container.parentNode.removeChild(this.container);
 
         this.ctx = null;
         this.canvas = null;
         this.wrapEvent = null;
         this.content = null;
-        this.container = null;
 
-        this.cacheEvent.off();
-        this.cacheEvent = null;
+        super.destroy();
     }
 
     public getSeriesToDraw(): ISeries[] {
@@ -388,7 +384,7 @@ export class ChartTime extends Widget {
     }
 
     public redraw(activeSeries?: ISeries): void {
-        if (this.enableRedraw && this.isShow) {
+        if (this.container && this.enableRedraw && this.isShow) {
             // console.time("redraw");
             const sizeBody: number[] = this.getSizeBody();
             const series: ISeries[] = this.getSeriesToDraw().sort((s1, s2) => {
@@ -781,9 +777,7 @@ export class ChartTime extends Widget {
                     // time-line
                     this.setTimeLine(this.rawTime);
 
-                    if (this.events.onChangeTimeLine) {
-                        this.events.onChangeTimeLine(this);
-                    }
+                    this.fire("onChangeTimeLine");
                 }
             },
         );
@@ -794,9 +788,7 @@ export class ChartTime extends Widget {
                 this.dragDrop.start(event, this.offset, 0);
             },
             dblclick: () => {
-                if (this.events.onDblClick) {
-                    this.events.onDblClick(this);
-                }
+                this.fire("onDblClick");
             },
             wheel: (event: MouseEvent) => {
                 this.onWheel(event);
@@ -806,10 +798,7 @@ export class ChartTime extends Widget {
 
     private onMove(event: MouseEvent, offset: number): void {
         this.setOffset(offset);
-
-        if (this.events.onChangeOffset) {
-            this.events.onChangeOffset(this);
-        }
+        this.fire("onChangeOffset");
     }
 
     private onWheel(event: MouseEvent): void {
@@ -851,9 +840,7 @@ export class ChartTime extends Widget {
 
         this.redraw();
 
-        if (this.events.onChangeScale) {
-            this.events.onChangeScale(this);
-        }
+        this.fire("onChangeScale");
     }
 
     private initLegend(config: IConfig): void {
@@ -863,8 +850,6 @@ export class ChartTime extends Widget {
                 this.redraw();
             }
         });
-
-        config.bindTo = this.container;
 
         config.events = {
             onChangeWidth(legend: Legend): void {
@@ -877,9 +862,7 @@ export class ChartTime extends Widget {
                 me.pointer.style.display = "none";
                 me.timeLine.style.display = "none";
 
-                if (me.events.onChangeWidthLegend) {
-                    me.events.onChangeWidthLegend(me);
-                }
+                me.fire("onChangeWidthLegend");
 
                 delayRedraw();
             },
@@ -909,8 +892,6 @@ export class ChartTime extends Widget {
 
     private initTooltip(config: IConfig): void {
         const me: ChartTime = this;
-
-        config.target = this.wrapEvent;
 
         config.events = {
             onCreate(tooltip: Tooltip, event: MouseEvent) {
@@ -994,18 +975,13 @@ export class ChartTime extends Widget {
                     me.rawTime = null;
                 }
 
-                if (me.events.onChangeTooltip) {
-                    me.events.onChangeTooltip(me);
-                }
+                me.fire("onChangeTooltip");
 
                 return isUpdate;
             },
             onRemove(tooltip: Tooltip, event: MouseEvent) {
                 me.pointer.style.display = "none";
-
-                if (me.events.onChangeTooltip) {
-                    me.events.onChangeTooltip(me);
-                }
+                me.fire("onChangeTooltip");
 
                 // time-line
                 me.rawTime = null;
