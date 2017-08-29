@@ -7,7 +7,7 @@ interface ICoordinate {
     y: number;
 }
 
-let time: number = null;
+let time: number = 0;
 
 export class Tooltip extends Widget {
 
@@ -86,10 +86,10 @@ export class Tooltip extends Widget {
                 }
             },
             mouseleave: (event: MouseEvent) => {
+                time = this.blocking ? 0 : (new Date()).getTime();
+
                 this.blocking = false;
                 this.onMouseLeave(event);
-
-                time = (new Date()).getTime();
             },
         });
     }

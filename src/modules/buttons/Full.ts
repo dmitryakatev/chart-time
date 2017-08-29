@@ -22,7 +22,9 @@ export class Full extends Button {
             click: () => {
                 this.chartTime.scale = 1;
                 this.chartTime.offset = 1;
-                // this.chartTime.redraw();
+                this.chartTime.redraw();
+
+                this.chartTime.fire("onChangeScale");
             },
         });
     }

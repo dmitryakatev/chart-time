@@ -1,16 +1,16 @@
-import { ISettings } from "../ChartTime";
+import { BaseScale, IScale } from "./BaseScale";
+import { IConfig } from "./../modules/Widget";
 import { updateLabels } from "./labels/yLabel";
 
 import { ISeries } from "../series/index";
 import { Coord } from "../modules/Coord";
 import { ctxTest } from "../utils/util";
-import { BaseScale, IScale } from "./BaseScale";
 
 export class YScale extends BaseScale {
 
     public static type: string = "yscale";
 
-    public static updateTicks(scales: IScale[], sizeBody: number[], settings: ISettings, mirror: IScale): void {
+    public static updateTicks(scales: IScale[], sizeBody: number[], settings: IConfig, mirror: IScale): void {
         this.updateLabels(scales, sizeBody, settings);
         this.updateXCoords(scales, sizeBody, settings, mirror);
         this.updateYCoords(scales, sizeBody, settings);
@@ -18,7 +18,7 @@ export class YScale extends BaseScale {
 
     private static id: number = 0;
 
-    private static updateXCoords(scales: IScale[], sizeBody: number[], settings: ISettings, mirror: IScale): void {
+    private static updateXCoords(scales: IScale[], sizeBody: number[], settings: IConfig, mirror: IScale): void {
         ctxTest.font = settings.sizeText + "px " + settings.font;
 
         function sort(scale1: YScale, scale2: YScale) {
@@ -73,7 +73,7 @@ export class YScale extends BaseScale {
         }
     }
 
-    private static updateYCoords(scales: IScale[], sizeBody: number[], settings: ISettings): void {
+    private static updateYCoords(scales: IScale[], sizeBody: number[], settings: IConfig): void {
         const countTicks: number = scales[0].labels.length;
         const bodyHeight: number = sizeBody[1];
 
@@ -94,7 +94,7 @@ export class YScale extends BaseScale {
         }
     }
 
-    private static updateLabels(scales: IScale[], sizeBody: number[], settings: ISettings): void {
+    private static updateLabels(scales: IScale[], sizeBody: number[], settings: IConfig): void {
         // минимальное расстояние между рисками
         const minHeightTicks: number = settings.minHeightTicks;
 

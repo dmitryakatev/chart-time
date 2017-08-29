@@ -1,5 +1,6 @@
 import { IConfig } from "./../Widget";
 import { Button } from "./Button";
+import { ISeries } from "./../../series/BaseSeries";
 
 import { on } from "./../../utils/event";
 
@@ -83,7 +84,13 @@ export class Damage extends Button {
                     this.addClass(target, Damage.classNameItemSelected);
 
                     this.chartTime.settings.filterQuality = parseInt(damage, 10);
-                    // this.chartTime.fire("onChangeSetting");
+                    this.chartTime.series.forEach((s: ISeries) => {
+                        s.filterScale = -1;
+                    });
+
+                    this.chartTime.redraw();
+
+                    this.chartTime.fire("onChangeSetting", "filterQuality", this.chartTime.settings.filterQuality);
                 }
             },
         });

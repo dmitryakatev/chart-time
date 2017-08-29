@@ -12,53 +12,12 @@ import { YScale } from "./scales/YScale";
 import { Calc, IScale, updateScales } from "./scales/index";
 import { IItem, IItemRaw, IPoint, ISeries, updateSeries } from "./series/index";
 
-import { CacheEvent } from "./modules/CacheEvent";
 import { Drag } from "./modules/Drag";
 import { Coord } from "./modules/Coord";
 import { toGroup, toMap } from "./utils/group";
-import { createDOM, isNumeric, mergeIf, delay, formatDate, formatTime } from "./utils/util";
+import { mergeIf, delay, formatDate, formatTime } from "./utils/util";
 
 import "./less/chartTime.less";
-
-export interface IChartTimeEvents {
-    onChangeScale?: (instance: ChartTime) => any;
-    onChangeOffset?: (instance: ChartTime) => any;
-    onChangeWidthLegend?: (instance: ChartTime) => any;
-    onChangeTooltip?: (instance: ChartTime) => any;
-    onChangeTimeLine?: (instance: ChartTime) => any;
-    onChangeSetting?: (instance: ChartTime) => any;
-    onDblClick?: (instance: ChartTime) => any;
-}
-
-export interface IChartTimeSource {
-    source?: any;
-    series?: any[];
-    scales?: any[];
-}
-
-export interface ISettings {
-    margin: number;           // отступ сверху и снизу
-    sizeText: number;         // размер текста
-    font: string;             // шрифт
-    colorText: string;        // цвет текста
-    minHeightTicks: number;   // минимальная высота между линиями в сетке
-    filterQuality: number;    // качество фильтрации (только для типа серии line)
-    hypersensitivity: number; // во сколько раз уменьшать прозрачность других серий, если есть активная
-    usePointerLine: boolean;  // использовать горизонтальную линию
-    useTimeLine: boolean;     // использовать линию timeLine
-}
-
-export interface IChartTimeConfig extends IChartTimeSource {
-    name?: string;
-    width?: number;
-    height?: number;
-    show?: boolean;
-    events?: IChartTimeEvents;
-    legend?: IConfig;
-    tooltip?: IConfig;
-    settings?: ISettings;
-    disableRedraw?: boolean;
-}
 
 interface IInterpritar {
     [propName: string]: Calc;
@@ -69,65 +28,70 @@ interface IAccumulate {
     point: IPoint;
 }
 
-const template: string = [
-    "<div class=\"chart-time\">",
-        "<div class=\"chart-time-content\">",
-            "<div class=\"chart-time-content-wrap\">",
-                "<canvas></canvas>",
-                "<div class=\"chart-time-line chart-time-line-pointer\"></div>",
-                "<div class=\"chart-time-line chart-time-line-time\" style=\"display: none;\"></div>",
-            "</div>",
-            "<div class=\"chart-time-content-wrap chart-time-content-wrap-event\"></div>",
-        "</div>",
-    "</div>",
-].join("");
-
-const defaultConfig = {
-    width: 400,
-    height: 300,
-    show: true,
-    disableRedraw: false,
-    legend: {
-        buttons: ["damage", "full"],
-        tooltip: {
-            showDelay: 1000,
-            hideDelay: 3000,
-            saveDelay: 1000,
-        },
-    },
-};
-
-const defaultSettings = {
-    margin: 20,
-    sizeText: 10,
-    font: "sans-serif",
-    colorText: "black",
-    minHeightTicks: 30,
-    filterQuality: 1,
-    hypersensitivity: 5,
-    usePointerLine: true,
-    useTimeLine: true,
-    showBtnQuality: true,
-    showBtnFull: true,
-};
-
 const X_SCALE_NANE: string = "xscale_" + Math.random().toString(36).substr(2, 8);
 const coordChartTime = new Coord(); // TODO !!!
 
-export class ChartTime {
+export class ChartTime extends Widget {
+
+    public static config: IConfig = {
+        width: 400,
+        height: 300,
+        disableRedraw: false,
+        legend: {
+            buttons: ["damage", "full"],
+            tooltip: {
+                showDelay: 1000,
+                hideDelay: 3000,
+                saveDelay: 1000,
+            },
+        },
+        tooltip: {},
+        // events: {
+        //     onChangeScale?: (instance: ChartTime) => any;
+        //     onChangeOffset?: (instance: ChartTime) => any;
+        //     onChangeWidthLegend?: (instance: ChartTime) => any;
+        //     onChangeTooltip?: (instance: ChartTime) => any;
+        //     onChangeTimeLine?: (instance: ChartTime) => any;
+        //     onChangeSetting?: (instance: ChartTime) => any;
+        //     onDblClick?: (instance: ChartTime) => any;
+        // },
+    };
+
+    public static settings: IConfig = {
+        margin: 20,
+        sizeText: 10,
+        font: "sans-serif",
+        colorText: "black",
+        minHeightTicks: 30,
+        filterQuality: 1,
+        hypersensitivity: 5,
+        usePointerLine: true,
+        useTimeLine: true,
+    };
+
+    public static template: string = [
+        "<div class=\"chart-time\">",
+            "<div class=\"chart-time-content\">",
+                "<div class=\"chart-time-content-wrap\">",
+                    "<canvas></canvas>",
+                    "<div class=\"chart-time-line chart-time-line-pointer\"></div>",
+                    "<div class=\"chart-time-line chart-time-line-time\" style=\"display: none;\"></div>",
+                "</div>",
+                "<div class=\"chart-time-content-wrap chart-time-content-wrap-event\"></div>",
+            "</div>",
+        "</div>",
+    ].join("");
+
     public static buttons: { [propName: string]: IButtonCtor } = {};
 
     public static injectBtn(name: string, ctor: IButtonCtor): void {
         ChartTime.buttons[name] = ctor;
     }
 
-    private static id: number = 0;
-
-    public id: string;
     public type: string = "chartTime";
 
-    public width: number;           // ширина
-    public height: number;          // высота
+    // public width: number;           // ширина
+    // public height: number;          // высота
 
     public offset: number;          // смещение (сдвиг слева)
     public scale: number;           // масштаб
@@ -136,14 +100,14 @@ export class ChartTime {
     public series: ISeries[];       // список серий
     public scales: IScale[];        // список шкал по оси Y
 
-    public isShow: boolean;         // показывать или скрыть график
+    // public isShow: boolean;         // показывать или скрыть график
 
     public xScalesToDraw: IScale[];   // шкалы для отображения по оси X (будет 1 шкала, но храним как множество)
     public yScalesToDraw: IScale[];   // шкалы для отображения по оси Y (фильтр от поля this.scales)
 
     public settings: any;             // найстройки отображения на канвасе (отступ, шрифт, размер текста, ...)
 
-    public events: IChartTimeEvents;  // события, которые могут происходить на графике
+    // public events: IChartTimeEvents;  // события, которые могут происходить на графике
     public dragDrop: Drag;
 
     public legend: Legend;          // легенда
@@ -159,9 +123,9 @@ export class ChartTime {
     private rawTime: Date;          // для timeLine
     private valTime: Date;          // для timeLine
 
-    private cacheEvent: CacheEvent; // хранит привязанные события к DOM
+    // private cacheEvent: CacheEvent; // хранит привязанные события к DOM
 
-    private container: HTMLDivElement;
+    // private container: HTMLDivElement;
     private content: HTMLDivElement;
     private wrapEvent: HTMLDivElement;
     private pointer: HTMLDivElement;
@@ -169,25 +133,8 @@ export class ChartTime {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
 
-    constructor(bindTo: Element, config: IChartTimeConfig) {
-        this.id = config.name || (++ChartTime.id).toString(36);
-
-        mergeIf(config, defaultConfig);
-        this.events = config.events || {};
-        this.settings = mergeIf(config.settings || {}, defaultSettings);
-
-        this.container = createDOM(template) as HTMLDivElement;
-        bindTo.appendChild(this.container);
-
-        this.content = this.container.querySelector(".chart-time-content") as HTMLDivElement;
-        this.wrapEvent = this.content.querySelector(".chart-time-content-wrap-event") as HTMLDivElement;
-        this.pointer = this.content.querySelector(".chart-time-line-pointer") as HTMLDivElement;
-        this.timeLine = this.content.querySelector(".chart-time-line-time") as HTMLDivElement;
-        this.canvas = this.content.querySelector("canvas") as HTMLCanvasElement;
-        this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
-
-        // events
-        this.initEvent();
+    public init(config: IConfig): void {
+        this.settings = mergeIf({}, config.settings || {}, ChartTime.settings);
 
         // legend and tooltip
         this.initLegend(config.legend || {});
@@ -216,18 +163,25 @@ export class ChartTime {
         this.dirtyDraw = false;
         this.disableRedraw(config.disableRedraw);
 
-        // set size. needCalculate
-        this.series = []; // чтобы в setSize небыло ошибки
-        this._setSize(config.width, config.height);
-
-        // set show
-        this.show(config.show);
+        this.series = [];
 
         // update source, series, y scales
         this.update(config);
     }
 
-    public update(config: IChartTimeSource): void {
+    public afterRender(): void {
+        this.content = this.container.querySelector(".chart-time-content") as HTMLDivElement;
+        this.wrapEvent = this.content.querySelector(".chart-time-content-wrap-event") as HTMLDivElement;
+        this.pointer = this.content.querySelector(".chart-time-line-pointer") as HTMLDivElement;
+        this.timeLine = this.content.querySelector(".chart-time-line-time") as HTMLDivElement;
+        this.canvas = this.content.querySelector("canvas") as HTMLCanvasElement;
+        this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+
+        // events
+        this.initEvent();
+    }
+
+    public update(config: IConfig): void {
         if (!config.source) { config.source = {}; }
         if (!config.series) { config.series = []; }
         if (!config.scales) { config.scales = []; }
@@ -361,7 +315,7 @@ export class ChartTime {
     }
 
     public getDom(): HTMLDivElement {
-        return this.container;
+        return this.container as HTMLDivElement;
     }
 
     public setSetting(setting: string, value: any): void {
@@ -816,7 +770,6 @@ export class ChartTime {
 
     private initEvent(): void {
         let isDraged: boolean;
-        this.cacheEvent = new CacheEvent();
 
         this.dragDrop = new Drag(
             (event: MouseEvent, width: number, height: number) => {
@@ -952,97 +905,6 @@ export class ChartTime {
                 this.legend.addBtn(btn);
             });
         }
-
-        /*
-        this.legend.addBtn([
-            "<div class=\"chart-time-icon chart-time-icon-spanner\">",
-                 "<div class=\"chart-time-icon-spanner-context\">",
-                     "<div",
-                         " class=\"chart-time-icon-spanner-context-item\"",
-                         " data-quality=\"1\">Высокое качество</div>",
-                     "<div",
-                         " class=\"chart-time-icon-spanner-context-item\"",
-                         " data-quality=\"2\">Среднее качество</div>",
-                     "<div",
-                         " class=\"chart-time-icon-spanner-context-item\"",
-                         " data-quality=\"4\">Низкое качество</div>",
-                 "</div>",
-            "</div>",
-        ], this.settings.showBtnQuality, "Качество фильрации точек", (div: HTMLDivElement, cacheEvent: CacheEvent) => {
-            const classItem: string = "chart-time-icon-spanner-context-item";
-            const classSeleced: string = classItem + "-selected";
-            const list: HTMLCollection = div.children[0].children[0].children;
-
-            Array.prototype.forEach.call(list, (item: HTMLDivElement, index: number) => {
-                if (me.settings.filterQuality === parseInt(item.getAttribute("data-quality"), 10)) {
-                    item.classList.add(classSeleced);
-                }
-
-                cacheEvent.on(item, {
-                    click: () => {
-                        const quality: number = parseInt(item.getAttribute("data-quality"), 10);
-                        div.querySelector("." + classSeleced).classList.remove(classSeleced);
-                        item.classList.add(classSeleced);
-
-                        me.settings.filterQuality = quality;
-                        me.series.forEach((s: ISeries) => {
-                            s.filterScale = -1;
-                        });
-
-                        me.redraw();
-
-                        if (this.events.onChangeSetting) {
-                            this.events.onChangeSetting(this);
-                        }
-                    },
-                });
-
-            });
-
-            // show\hide context
-            const classContext: string = "chart-time-icon-spanner-context";
-            const classContextShow: string = classContext + "-show";
-
-            cacheEvent.on(div, {
-                click: (event: MouseEvent) => {
-                    const context: HTMLDivElement = div.querySelector("." + classContext) as HTMLDivElement;
-                    if (context.classList.contains(classContextShow)) {
-                        context.classList.remove(classContextShow);
-                        cacheEvent.pop();
-                    } else {
-                        context.classList.add(classContextShow);
-                        setTimeout(() => {
-                            if (this.container) {
-                                cacheEvent.on(document.body, {
-                                    click: () => {
-                                        context.classList.remove(classContextShow);
-                                        cacheEvent.pop();
-                                    },
-                                });
-                            }
-                        }, 30);
-                    }
-                },
-            });
-        });
-
-        this.legend.addBtn([
-            "<div class=\"chart-time-icon chart-time-icon-full\">",
-                "<div class=\"chart-time-icon-full-square\"></div>",
-            "</div>",
-        ], this.settings.showBtnFull, "Первоначальный вид графика", (div: HTMLDivElement, cacheEvent: CacheEvent) => {
-            cacheEvent.on(div, {
-                click: () => {
-                    me.scale = 1;
-                    me.offset = 0;
-                    me.redraw();
-
-                    if (this.events.onChangeScale) {
-                        this.events.onChangeScale(this);
-                    }
-                },
-            });
-        });*/
     }
 
     private initTooltip(config: IConfig): void {
