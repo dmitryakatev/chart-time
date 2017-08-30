@@ -873,12 +873,13 @@ export class ChartTime extends Widget {
         this.legend = new Legend(config);
 
         if (config.buttons) {
-            config.buttons.forEach((button: string) => {
-                const ctor: IButtonCtor = ChartTime.buttons[button];
-                const btn: Button = new ctor({
+            config.buttons.forEach((button: any) => {
+                button = typeof button === "string" ? { type : button } : button;
+                const ctor: IButtonCtor = ChartTime.buttons[button.type];
+                const btn: Button = new ctor(mergeIf({
                     chartTime: this,
                     tooltip: config.tooltip,
-                });
+                }, button));
 
                 this.legend.addBtn(btn);
             });

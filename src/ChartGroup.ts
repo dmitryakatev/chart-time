@@ -2,6 +2,7 @@ import { isEnablePrintWarn } from "./modules/PrintWarn";
 
 import { ChartTime } from "./ChartTime";
 import { Widget, IConfig } from "./modules/Widget";
+import { Button } from "./modules/buttons/Button";
 
 import { Updater } from "./modules/Updater";
 
@@ -47,7 +48,8 @@ export class ChartGroup extends Widget {
     public config: IConfig;
 
     private grouping: boolean;
-    private showBtnGroup: boolean;
+    private indexBtn: number;
+
     private marginChart: number;
     private defaultScale: boolean;
     private enableRedraw: boolean;
@@ -59,8 +61,8 @@ export class ChartGroup extends Widget {
         this.series = {};
 
         this.grouping = config.grouping !== false;
-        this.showBtnGroup = config.showBtnGroup;
         this.marginChart = config.marginChart;
+        this.indexBtn = null;
 
         this.config = {
             bindTo: null,
@@ -87,6 +89,17 @@ export class ChartGroup extends Widget {
             disableRedraw: true,
         };
 
+        if (this.config.legend && this.config.legend.buttons) {
+            this.config.legend.buttons = this.config.legend.buttons.map((type: string, index: number) => {
+                const info: any = { type };
+                if (type === "group") {
+                    info.chartGroup = this;
+                    this.indexBtn = index;
+                }
+                return info;
+            });
+        }
+
         this.updater = new Updater<ChartTime>(null,
             this._createChart.bind(this),
             this._updateChart.bind(this),
@@ -97,6 +110,11 @@ export class ChartGroup extends Widget {
 
         this.disableRedraw(config.disableRedraw);
         this.update(config);
+    }
+
+    public bindTo(bindTo: HTMLElement): void {
+        super.bindTo(bindTo);
+        this.applyUpdate();
     }
 
     public afterRender(): void {
@@ -195,8 +213,20 @@ export class ChartGroup extends Widget {
 
         const classExpanded: string = "chart-time-icon-group-expanded";
         this.charts.forEach((chartTime: ChartTime) => {
-            const btn: HTMLDivElement = chartTime.legend.getBtn(2).children[0] as HTMLDivElement;
-            this.grouping ? btn.classList.add(classExpanded) : btn.classList.remove(classExpanded);
+            if (this.indexBtn !== null) {
+                const btn: Button = chartTime.legend.getBtn(this.indexBtn);
+                if (btn.container) {
+                    if (this.grouping) {
+                         this.addClass(btn.container, classExpanded);
+                    } else {
+                        this.removeClass(btn.container, classExpanded);
+                    }
+                } else {
+                    if (this.grouping) {
+                        btn.className = this.grouping ? classExpanded : null;
+                    }
+                }
+            }
         });
 
         const instance: ChartTime = this.charts[0] || null;
@@ -279,10 +309,6 @@ export class ChartGroup extends Widget {
     }
 
     public showBtn(show: boolean, index?: number): void {
-        if (!isNumeric(index) || index === 2) {
-            this.showBtnGroup = show;
-        }
-
         this.charts.forEach((chartTime: ChartTime) => {
             chartTime.legend.showBtn(show, index);
         });
