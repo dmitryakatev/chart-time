@@ -1,7 +1,7 @@
 
 var div = document.createElement("div");
 document.body.appendChild(div);
-/*
+
 var config = {
     width: 600,
     // settings: {
@@ -81,9 +81,10 @@ var config = {
     source: db
 };
 
-var chartGroup = new ChartTime.ChartGroup(div, config);
-*/
+config.bindTo = div;
+var chartGroup = new ChartTime.ChartGroup(config);
 
+/*
 var config = {
     //bindTo: div,
     width: 600,
@@ -130,3 +131,4 @@ var config = {
 
 var chart = new ChartTime(config);
 chart.bindTo(div);
+*/
