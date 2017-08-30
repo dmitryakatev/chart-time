@@ -35,3 +35,21 @@ export class Group extends Button {
         super.destroy();
     }
 }
+/*
+    private initBtnGroup(chartTime: ChartTime): void {
+        chartTime.legend.addBtn([
+            "<div class=\"chart-time-icon chart-time-icon-group\"></div>",
+        ], this.showBtnGroup, "Вкл/Выкл группировку", (div: HTMLDivElement, cacheEvent: CacheEvent) => {
+
+            const classExpanded: string = "chart-time-icon-group-expanded";
+            const context: HTMLDivElement = div.children[0] as HTMLDivElement;
+            this.grouping ? context.classList.add(classExpanded) : context.classList.remove(classExpanded);
+
+            cacheEvent.on(div, {
+                click: (event: MouseEvent) => {
+                    this.enableGrouping(!this.grouping);
+                },
+            });
+        });
+    }
+*/

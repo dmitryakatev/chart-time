@@ -1,69 +1,50 @@
-/*
 import { isEnablePrintWarn } from "./modules/PrintWarn";
 
-import { ChartTime, IChartTimeConfig, IChartTimeEvents, ISettings } from "./ChartTime";
+import { ChartTime } from "./ChartTime";
+import { Widget, IConfig } from "./modules/Widget";
 
 import { Updater } from "./modules/Updater";
-import { CacheEvent } from "./modules/CacheEvent";
-
-import { ILegendConfig } from "./modules/Legend";
-import { ITooltipConfig } from "./modules/Tooltip";
 
 import { IScale } from "./scales/index";
 import { ISeries } from "./series/index";
 
-import { createDOM, mergeIf, isNumeric, MIN_VALUE, MAX_VALUE } from "./utils/util";
+import { mergeIf, isNumeric, MIN_VALUE, MAX_VALUE } from "./utils/util";
 
-export interface IChartTimeSimpleConfig {
-    name?: string;
-    series?: any[];
-}
+export class ChartGroup extends Widget {
 
-export interface IChartGroupSource {
-    source?: any;
-    charts?: IChartTimeSimpleConfig[];
-    scales?: any[];
-}
+    public static config: IConfig = {
+        width: 400,
+        height: 300,
+        disableRedraw: false,
+        grouping: true,
+        marginChart: 5,
+        legend: {
+            minWidth: 105,
+            buttons: ["damage", "full", "group"],
+        },
+        tooltip: {},
+        settings: {},
+        // events: {
+        //     onChangeScale?: (instance: ChartGroup) => any;
+        //     onChangeOffset?: (instance: ChartGroup) => any;
+        //     onChangeWidthLegend?: (instance: ChartGroup) => any;
+        //     onChangeTooltip?: (instance: ChartGroup) => any;
+        //     onChangeTimeLine?: (instance: ChartGroup) => any;
+        //     onChangeSetting?: (instance: ChartGroup) => any;
+        //     onDblClick?: (instance: ChartGroup) => any;
+        // },
+    };
 
-export interface IChartGroupConfig extends IChartGroupSource {
-    width?: number;
-    height?: number;
-    events?: IChartTimeEvents;
-    legend?: ILegendConfig;
-    tooltip?: ITooltipConfig;
-    settings?: ISettings;
-    disableRedraw?: boolean;
+    public static template: string = [
+        "<div class=\"chart-time-group\"></div>",
+    ].join("");
 
-    grouping?: boolean;
-    showBtnGroup?: boolean;
-    marginChart?: number;
-}
-
-const defaultConfig = {
-    width: 400,
-    height: 300,
-    disableRedraw: false,
-    grouping: true,
-    showBtnGroup: true,
-    marginChart: 5,
-};
-
-const template: string = [
-    "<div class=\"chart-time-group\"></div>",
-].join("");
-*/
-export class ChartGroup {
-    public width: number;
-    public height: number;
-/*
     public source: any;
     public charts: ChartTime[];
     public scales: IScale[];
     public series: { [propName: string]: ISeries[] };
 
-    public config: IChartTimeConfig;
-
-    public events: IChartTimeEvents;
+    public config: IConfig;
 
     private grouping: boolean;
     private showBtnGroup: boolean;
@@ -73,32 +54,24 @@ export class ChartGroup {
 
     private updater: Updater<ChartTime>;
 
-    private container: HTMLDivElement;
-
-    constructor(bindTo: Element, config: IChartGroupConfig) {
-        mergeIf(config, defaultConfig);
-        this.events = config.events || {};
-
-        this.container = createDOM(template) as HTMLDivElement;
-        bindTo.appendChild(this.container);
-
+    public init(config: IConfig): void {
         this.charts = [];
         this.series = {};
-        this.setSize(config.width, config.height);
-        this.disableRedraw(config.disableRedraw);
 
         this.grouping = config.grouping !== false;
         this.showBtnGroup = config.showBtnGroup;
         this.marginChart = config.marginChart;
 
         this.config = {
+            bindTo: null,
+
             source: {},
             series: null,
             scales: null,
 
             width: 300,
-            height: 100,
-            show: true, // false,
+            height: 50,
+            show: true,
             events: {
                 onChangeScale: this.bindEvent("onChangeState"),
                 onChangeOffset: this.bindEvent("onChangeState"),
@@ -108,9 +81,9 @@ export class ChartGroup {
                 onChangeSetting: this.bindEvent("onChangeSetting"),
                 onDblClick: this.bindEvent("onDblClick"),
             },
-            legend: mergeIf(config.legend || {}, { minWidth: 105 }),
-            tooltip: config.tooltip,
-            settings: config.settings,
+            legend: mergeIf({}, config.legend, ChartGroup.config.legend),
+            tooltip: mergeIf({}, config.tooltip, ChartGroup.config.tooltip),
+            settings: mergeIf({}, config.settings, ChartGroup.config.settings),
             disableRedraw: true,
         };
 
@@ -120,10 +93,19 @@ export class ChartGroup {
             this._removeChart.bind(this),
         );
 
+        super.init(config);
+
+        this.disableRedraw(config.disableRedraw);
         this.update(config);
     }
 
-    public update(config: IChartGroupSource): void {
+    public afterRender(): void {
+        this.charts.forEach((chartTime: ChartTime) => {
+            chartTime.bindTo(this.container);
+        });
+    }
+
+    public update(config: IConfig): void {
         if (!config.source) { config.source = {}; }
         if (!config.charts) { config.charts = []; }
         if (!config.scales) { config.scales = []; }
@@ -180,6 +162,18 @@ export class ChartGroup {
         });
 
         this.enableGrouping(this.grouping);
+    }
+
+    public setSize(width: number, height: number): void {
+        super.setSize(width, height);
+
+        const size: number[] = this.findChartSize();
+
+        this.charts.forEach((chartTime: ChartTime) => {
+            if (chartTime.isShow) {
+                chartTime.setSize(size[0], size[1]);
+            }
+        });
     }
 
     public setTimeLine(date: Date, isCenter: boolean): void {
@@ -337,8 +331,8 @@ export class ChartGroup {
     private onChangeTooltip(chartTime: ChartTime, instance: ChartTime): void {
         const selector: string = "chart-time-line-pointer";
 
-        const line1: HTMLDivElement = instance.getDom().querySelector("." + selector) as HTMLDivElement;
-        const line2: HTMLDivElement = chartTime.getDom().querySelector("." + selector) as HTMLDivElement;
+        const line1: HTMLDivElement = instance.container.querySelector("." + selector) as HTMLDivElement;
+        const line2: HTMLDivElement = chartTime.container.querySelector("." + selector) as HTMLDivElement;
 
         line2.style.left = line1.style.left;
         line2.style.display = line1.style.display;
@@ -354,8 +348,8 @@ export class ChartGroup {
 
             const classItem: string = "chart-time-icon-spanner-context-item";
             const classSeleced: string = classItem + "-selected";
-            chartTime.getDom().querySelector("." + classSeleced).classList.remove(classSeleced);
-            chartTime.getDom().querySelector(`div[data-quality="${chartTime.settings.filterQuality}"]`)
+            chartTime.container.querySelector("." + classSeleced).classList.remove(classSeleced);
+            chartTime.container.querySelector(`div[data-quality="${chartTime.settings.filterQuality}"]`)
                      .classList.add(classSeleced);
 
             chartTime.series.forEach((s: ISeries) => {
@@ -371,22 +365,6 @@ export class ChartGroup {
     }
 
     // ------
-    private setSize(width: number, height: number): void {
-        this.container.style.width = width + "px";
-        this.container.style.height = height + "px";
-
-        this.width = width;
-        this.height = height;
-
-        const size: number[] = this.findChartSize();
-
-        this.charts.forEach((chartTime: ChartTime) => {
-            if (chartTime.isShow) {
-                chartTime.setSize(size[0], size[1]);
-            }
-        });
-    }
-
     private findChartSize(): number[] {
         let countShow: number = 0;
 
@@ -407,19 +385,23 @@ export class ChartGroup {
     }
 
     // ------
-    private _createChart(config: IChartTimeSimpleConfig): ChartTime {
+    private _createChart(config: IConfig): ChartTime {
         this.config.series = null;
         this.config.scales = null;
 
-        const chartTime: ChartTime = new ChartTime(this.container, this.config);
+        this.config.bindTo = this.container || null;
+        const chartTime: ChartTime = new ChartTime(this.config);
+        this.config.bindTo = null;
 
-        chartTime.getDom().style.margin = this.marginChart + "px";
-        this.initBtnGroup(chartTime);
+        if (chartTime.container) {
+            chartTime.container.style.margin = this.marginChart + "px";
+        }
+
         this._updateChart(chartTime, config);
         return chartTime;
     }
 
-    private _updateChart(chartTime: ChartTime, config: IChartTimeSimpleConfig): void {
+    private _updateChart(chartTime: ChartTime, config: IConfig): void {
         chartTime.disableRedraw(true);
 
         if (!config.series) { config.series = []; }
@@ -442,23 +424,6 @@ export class ChartGroup {
         chartTime.destroy();
     }
 
-    private initBtnGroup(chartTime: ChartTime): void {
-        chartTime.legend.addBtn([
-            "<div class=\"chart-time-icon chart-time-icon-group\"></div>",
-        ], this.showBtnGroup, "Вкл/Выкл группировку", (div: HTMLDivElement, cacheEvent: CacheEvent) => {
-
-            const classExpanded: string = "chart-time-icon-group-expanded";
-            const context: HTMLDivElement = div.children[0] as HTMLDivElement;
-            this.grouping ? context.classList.add(classExpanded) : context.classList.remove(classExpanded);
-
-            cacheEvent.on(div, {
-                click: (event: MouseEvent) => {
-                    this.enableGrouping(!this.grouping);
-                },
-            });
-        });
-    }
-
     // ------
     private joinSourceName(chartName, sourceName): string {
         return chartName + "_%_" + sourceName;
@@ -478,5 +443,5 @@ export class ChartGroup {
                 delete this.config.source[sourceName];
             }
         }
-    }*/
+    }
 }

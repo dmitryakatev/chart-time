@@ -131,6 +131,7 @@ export class ChartTime extends Widget {
         this.initLegend(mergeIf({}, config.legend || {}, ChartTime.config.legend));
         this.initTooltip(mergeIf({}, config.tooltip || {}, ChartTime.config.tooltip));
 
+        this.enableRedraw = false;
         super.init(config);
 
         // init scales
@@ -160,6 +161,11 @@ export class ChartTime extends Widget {
 
         // update source, series, y scales
         this.update(config);
+    }
+
+    public bindTo(bindTo: HTMLElement): void {
+        super.bindTo(bindTo);
+        this.redraw();
     }
 
     public afterRender(): void {
@@ -308,10 +314,6 @@ export class ChartTime extends Widget {
         } else {
             this.updateTimeLine(sizeBody);
         }
-    }
-
-    public getDom(): HTMLDivElement {
-        return this.container as HTMLDivElement;
     }
 
     public setSetting(setting: string, value: any): void {

@@ -85,7 +85,7 @@ var chartGroup = new ChartTime.ChartGroup(div, config);
 */
 
 var config = {
-    bindTo: div,
+    //bindTo: div,
     width: 600,
     series: [{
         type: "line",
@@ -129,3 +129,4 @@ var config = {
 };
 
 var chart = new ChartTime(config);
+chart.bindTo(div);
