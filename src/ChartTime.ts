@@ -131,7 +131,10 @@ export class ChartTime extends Widget {
         this.initLegend(mergeIf({}, config.legend || {}, ChartTime.config.legend));
         this.initTooltip(mergeIf({}, config.tooltip || {}, ChartTime.config.tooltip));
 
-        this.enableRedraw = false;
+        // init: dirtyDraw, enableRedraw
+        this.dirtyDraw = false;
+        this.enableRedraw = config.disableRedraw;
+
         super.init(config);
 
         // init scales
@@ -153,10 +156,6 @@ export class ChartTime extends Widget {
         this.defaultScale = additionalScales[1];
         this.mirrorScale = additionalScales[2];
 
-        // init: dirtyDraw, enableRedraw
-        this.dirtyDraw = false;
-        this.disableRedraw(config.disableRedraw);
-
         this.series = [];
 
         // update source, series, y scales
@@ -164,8 +163,16 @@ export class ChartTime extends Widget {
     }
 
     public bindTo(bindTo: HTMLElement): void {
+        const dirtyDraw: boolean = this.dirtyDraw;
+        const enableRedraw: boolean = this.enableRedraw;
+
+        this.dirtyDraw = false;
+        this.disableRedraw(true);
+
         super.bindTo(bindTo);
-        this.redraw();
+
+        this.dirtyDraw = dirtyDraw;
+        this.disableRedraw(enableRedraw);
     }
 
     public afterRender(): void {
@@ -285,7 +292,35 @@ export class ChartTime extends Widget {
     }
 
     public setSize(width: number, height: number): void {
-        this._setSize(width, height);
+        if (this.container) {
+            const oldWidthContent: number = this.content.style.width ? parseInt(this.content.style.width, 10) : 0;
+            const newWidthContent: number = width - (this.legend.isShow ? this.legend.width : 0);
+
+            if (oldWidthContent !== 0) {
+                this.offset *= newWidthContent / oldWidthContent;
+            }
+
+            this.content.style.width = newWidthContent + "px";
+            this.canvas.setAttribute("width", newWidthContent.toString());
+            this.canvas.setAttribute("height", height.toString());
+
+            this.needCalculate = true;
+            if (this.width !== width) {
+                const ln: number = this.series.length;
+                for (let i: number = 0; i < ln; ++i) {
+                    this.series[i].filterScale = -1;
+                }
+            }
+
+            const top: string = this.settings.margin + "px";
+            const hgt: string = (height - (this.settings.margin * 2)) + "px";
+            this.pointer.style.top = top;
+            this.timeLine.style.top = top;
+            this.pointer.style.height = hgt;
+            this.timeLine.style.height = hgt;
+        }
+
+        super.setSize(width, height);
         this.redraw();
     }
 
@@ -648,40 +683,6 @@ export class ChartTime extends Widget {
 
             s.filterBetween(coord, sizeBody);
         }
-    }
-
-    private _setSize(width: number, height: number): void {
-        const oldWidthContent: number = this.content.style.width ? parseInt(this.content.style.width, 10) : 0;
-        const newWidthContent: number = width - (this.legend.isShow ? this.legend.width : 0);
-
-        if (oldWidthContent !== 0) {
-            this.offset *= newWidthContent / oldWidthContent;
-        }
-
-        this.container.style.width = width + "px";
-        this.container.style.height = height + "px";
-        this.content.style.width = newWidthContent + "px";
-        this.canvas.setAttribute("width", newWidthContent.toString());
-        this.canvas.setAttribute("height", height.toString());
-
-        this.needCalculate = true;
-        if (this.width !== width) {
-            const ln: number = this.series.length;
-            for (let i: number = 0; i < ln; ++i) {
-                this.series[i].filterScale = -1;
-            }
-        }
-
-        const top: string = this.settings.margin + "px";
-        const hgt: string = (height - (this.settings.margin * 2)) + "px";
-        this.pointer.style.top = top;
-        this.timeLine.style.top = top;
-        this.pointer.style.height = hgt;
-        this.timeLine.style.height = hgt;
-
-        // сохраним ширину и высоту
-        this.width = width;
-        this.height = height;
     }
 
     private _setScale(scale: number): void {

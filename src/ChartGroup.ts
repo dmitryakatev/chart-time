@@ -121,6 +121,7 @@ export class ChartGroup extends Widget {
 
     public afterRender(): void {
         this.charts.forEach((chartTime: ChartTime) => {
+            chartTime.disableRedraw(true);
             chartTime.bindTo(this.container);
         });
     }

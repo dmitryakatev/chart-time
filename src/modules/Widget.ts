@@ -65,8 +65,8 @@ export abstract class Widget extends Component {
         bindTo.appendChild(this.container);
         this.afterRender();
 
-        this.setSize(this.width, this.height);
         this.show(this.isShow);
+        this.setSize(this.width, this.height);
     }
 
     public abstract afterRender(): void;
