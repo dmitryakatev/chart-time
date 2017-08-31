@@ -41,8 +41,8 @@ export class Legend extends Widget {
     public series: ISeries[];
     public selected: ISeries;
 
+    public buttons: Button[];
     private markup: string[];
-    private buttons: Button[];
 
     private content: HTMLDivElement;
     private tool: HTMLDivElement;

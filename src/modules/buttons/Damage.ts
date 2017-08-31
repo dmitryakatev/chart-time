@@ -50,7 +50,7 @@ export class Damage extends Button {
     ].join("");
 
     public static classNameItem: string = Button.prefixClass + "-icon-spanner-context-item";
-    public static classNameItemSelected: string = Damage.classNameItem + "-selected";
+    public static classItemSelected: string = Damage.classNameItem + "-selected";
 
     private options: IOption[];
     private context: HTMLDivElement;
@@ -69,21 +69,17 @@ export class Damage extends Button {
             return this.getMarkupItem(option);
         }).join("");
 
+        this.select(this.chartTime.settings.filterQuality);
+
         this.cacheEvent.on(this.context, {
             click: (event: MouseEvent) => {
                 const target: HTMLDivElement = event.target as HTMLDivElement;
-                const damage = target.getAttribute("data-damage");
+                const damage: number = parseInt(target.getAttribute("data-damage") || "0", 10);
 
-                if (damage && damage.length > 0) {
-                    const selector: string = "." + Damage.classNameItemSelected;
-                    const selected: HTMLDivElement = this.context.querySelector(selector) as HTMLDivElement;
+                if (damage > 0) {
+                    this.select(damage);
 
-                    if (selected) {
-                        this.removeClass(selected, Damage.classNameItemSelected);
-                    }
-                    this.addClass(target, Damage.classNameItemSelected);
-
-                    this.chartTime.settings.filterQuality = parseInt(damage, 10);
+                    this.chartTime.settings.filterQuality = damage;
                     this.chartTime.series.forEach((s: ISeries) => {
                         s.filterScale = -1;
                     });
@@ -110,6 +106,17 @@ export class Damage extends Button {
         });
     }
 
+    public select(damage: number): void {
+        const deSelect: HTMLDivElement = this.context.querySelector("." + Damage.classItemSelected) as HTMLDivElement;
+        const toSelect: HTMLDivElement = this.context.querySelector(`div[data-damage="${damage}"]`) as HTMLDivElement;
+
+        if (deSelect) {
+            this.removeClass(deSelect, Damage.classItemSelected);
+        }
+
+        this.addClass(toSelect, Damage.classItemSelected);
+    }
+
     public destroy(): void {
         if (captured && captured.id === this.id) {
             captured = null;
@@ -122,7 +129,7 @@ export class Damage extends Button {
 
     private getMarkupItem(option: IOption): string {
         let className: string = Damage.classNameItem;
-        className += option.damage === this.chartTime.settings.showBtnQuality ? " " + Damage.classNameItemSelected : "";
+        className += option.damage === this.chartTime.settings.showBtnQuality ? " " + Damage.classItemSelected : "";
 
         return [
             "<div",

@@ -2,7 +2,9 @@ import { isEnablePrintWarn } from "./modules/PrintWarn";
 
 import { ChartTime } from "./ChartTime";
 import { Widget, IConfig } from "./modules/Widget";
+
 import { Button } from "./modules/buttons/Button";
+import { Damage } from "./modules/buttons/Damage";
 
 import { Updater } from "./modules/Updater";
 
@@ -217,9 +219,9 @@ export class ChartGroup extends Widget {
                 const btn: Button = chartTime.legend.getBtn(this.indexBtn);
                 if (btn.container) {
                     if (this.grouping) {
-                         this.addClass(btn.container, classExpanded);
+                        this.addClass(btn.container.children[0] as HTMLDivElement, classExpanded);
                     } else {
-                        this.removeClass(btn.container, classExpanded);
+                        this.removeClass(btn.container.children[0] as HTMLDivElement, classExpanded);
                     }
                 } else {
                     if (this.grouping) {
@@ -369,21 +371,23 @@ export class ChartGroup extends Widget {
     }
 
     private onChangeSetting(chartTime: ChartTime, instance: ChartTime): void {
-        if (instance.settings.filterQuality !== chartTime.settings.filterQuality) {
-            chartTime.settings.filterQuality = instance.settings.filterQuality;
-
-            const classItem: string = "chart-time-icon-spanner-context-item";
-            const classSeleced: string = classItem + "-selected";
-            chartTime.container.querySelector("." + classSeleced).classList.remove(classSeleced);
-            chartTime.container.querySelector(`div[data-quality="${chartTime.settings.filterQuality}"]`)
-                     .classList.add(classSeleced);
-
-            chartTime.series.forEach((s: ISeries) => {
-                s.filterScale = -1;
-            });
-
-            chartTime.redraw();
+        if (instance.settings.filterQuality === chartTime.settings.filterQuality) {
+            return;
         }
+
+        const damage: number = instance.settings.filterQuality;
+        chartTime.settings.filterQuality = damage;
+        chartTime.legend.buttons.forEach((btn: Button) => {
+            if (btn instanceof Damage) {
+                (btn as Damage).select(damage);
+            }
+        });
+
+        chartTime.series.forEach((s: ISeries) => {
+            s.filterScale = -1;
+        });
+
+        chartTime.redraw();
     }
 
     private onDblClick(chartTime: ChartTime, instance: ChartTime): void {
