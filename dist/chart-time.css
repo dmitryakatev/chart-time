@@ -1,0 +1,292 @@
+.chart-time-legend {
+  font-family: 'arial, tahoma, verdana, sans-serif';
+  font-size: 13px;
+  width: 100px;
+  position: absolute;
+  top: 0px;
+  right: 0;
+  bottom: 0px;
+  background-color: white;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.chart-time-legend-drag {
+  position: absolute;
+  background-color: cyan;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 100%;
+  margin-left: 1px;
+  margin-right: 1px;
+}
+.chart-time-legend-drag-draggable {
+  cursor: e-resize;
+}
+.chart-time-legend-tool {
+  box-sizing: border-box;
+  width: 100%;
+  padding-left: 10px;
+}
+.chart-time-legend-tool-small {
+  width: 40px;
+  height: 100%;
+}
+.chart-time-legend-wrap {
+  width: 100%;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  padding: 0px 0 10px 15px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+.chart-time-legend-content {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.chart-time-legend-item {
+  cursor: pointer;
+  padding-bottom: 3px;
+  white-space: nowrap;
+}
+.chart-time-legend-item:hover {
+  font-weight: bold;
+}
+.chart-time-legend-item-off {
+  opacity: 0.5;
+}
+.chart-time-legend-item-off:hover {
+  font-weight: normal;
+}
+.chart-time-legend-item-color {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+  font-size: 1px;
+  vertical-align: middle;
+}
+.chart-time-tooltip {
+  position: absolute;
+  font-size: 13px;
+  background-color: white;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+  z-index: 9000;
+}
+.chart-time {
+  position: relative;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  border: 1px solid cyan;
+  box-sizing: content-box;
+}
+.chart-time-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.chart-time-content-wrap {
+  background: rgba(0, 0, 0, 0);
+  width: 100%;
+  height: 100%;
+}
+.chart-time-content-wrap-event {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.chart-time-line {
+  position: absolute;
+  width: 0;
+}
+.chart-time-line-pointer {
+  border-right: 1px dashed black;
+}
+.chart-time-line-time {
+  border-right: 1px solid black;
+}
+.chart-time-tooltip-data {
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.chart-time-tooltip-data th {
+  border: 1px dotted cyan;
+  background-color: cyan;
+  text-align: left;
+  white-space: nowrap;
+  padding: 3px;
+}
+.chart-time-tooltip-data th span {
+  margin: 3px;
+}
+.chart-time-tooltip-data-color {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+}
+.chart-time-tooltip-data td {
+  border: 1px dotted cyan;
+  white-space: nowrap;
+  padding: 3px;
+}
+.chart-time-hide {
+  display: none;
+}
+.chart-time-icon {
+  position: relative;
+  width: 13px;
+  height: 13px;
+  margin: 4px;
+}
+.chart-time-icon-wrap {
+  display: inline-block;
+  box-sizing: content-box;
+  width: 21px;
+  height: 21px;
+  border-radius: 100%;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #0093bc;
+  cursor: pointer;
+  vertical-align: top;
+  margin: 4px;
+}
+.chart-time-icon-wrap:hover {
+  border-color: #c7cfec;
+}
+.chart-time-button-tooltip {
+  border: 1px dotted cyan;
+  background-color: cyan;
+  white-space: nowrap;
+  font-size: 14px;
+  padding: 3px;
+}
+.chart-time-icon-spanner:before, .chart-time-icon-spanner:after {
+  content: "";
+  position: absolute;
+}
+.chart-time-icon-spanner:before {
+  width: 7px;
+  height: 7px;
+  top: 0;
+  right: 0;
+  border-radius: 100%;
+  background: #0093bc;
+}
+.chart-time-icon-wrap:hover .chart-time-icon-spanner:before {
+  background: #c7cfec;
+}
+.chart-time-icon-spanner:after {
+  top: -2px;
+  left: 6px;
+  width: 3px;
+  height: 5px;
+  border-bottom-width: 10px;
+  border-bottom-style: solid;
+  border-bottom-color: #0093bc;
+  background: white;
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+}
+.chart-time-icon-wrap:hover .chart-time-icon-spanner:after {
+  border-bottom-color: #c7cfec;
+}
+.chart-time-icon-spanner-context {
+  position: absolute;
+  background-color: white;
+  border: 1px solid cyan;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 5px;
+  top: 100%;
+  right: -4px;
+  z-index: 1000;
+}
+.chart-time-icon-spanner-context-item {
+  white-space: nowrap;
+  font-size: 14px;
+  margin: 3px;
+  padding: 3px;
+}
+.chart-time-icon-spanner-context-item-selected {
+  background-color: #00eeee;
+}
+.chart-time-icon-spanner-context-item:hover {
+  background-color: cyan;
+}
+.chart-time-icon-spanner-context-show {
+  display: block;
+}
+.chart-time-icon-full {
+  overflow: hidden;
+}
+.chart-time-icon-full:before, .chart-time-icon-full:after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 3px;
+  height: 11px;
+  background: #0093bc;
+}
+.chart-time-icon-wrap:hover .chart-time-icon-full:before, .chart-time-icon-wrap:hover .chart-time-icon-full:after {
+  background: #c7cfec;
+}
+.chart-time-icon-full:before {
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+}
+.chart-time-icon-full:after {
+  -webkit-transform: rotate(-45deg);
+          transform: rotate(-45deg);
+}
+.chart-time-icon-full-square {
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  bottom: -3px;
+  right: -3px;
+  border: 4px solid #0093bc;
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+}
+.chart-time-icon-wrap:hover .chart-time-icon-full-square {
+  border-color: #c7cfec;
+}
+.chart-time-icon-group:before {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  left: 4px;
+  top: 2px;
+  border-style: solid;
+  border-width: 2px;
+  border-left-color: #0093bc;
+  border-top-color: #0093bc;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  -webkit-transform: rotate(-45deg);
+          transform: rotate(-45deg);
+}
+.chart-time-icon-wrap:hover .chart-time-icon-group:before {
+  border-left-color: #c7cfec;
+  border-top-color: #c7cfec;
+}
+.chart-time-icon-group-expanded:before {
+  -webkit-transform: rotate(-135deg);
+          transform: rotate(-135deg);
+  left: 2px;
+  top: 0px;
+}
