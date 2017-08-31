@@ -7,8 +7,8 @@ module.exports = function(config) {
         frameworks: ['jasmine'],
 
         files: [
-            './src/ChartTime.ts',
-            './src/**/*.spec.ts'
+            './src/index.ts',
+            './tests/**/*.spec.ts'
         ],
         
         mime: {
@@ -24,8 +24,8 @@ module.exports = function(config) {
         },
 
         preprocessors: {
-            './src/ChartTime.ts': ['webpack'],
-            './src/**/*.spec.ts': ['webpack'] //, 'sourcemap'
+            './src/index.ts': ['webpack'],
+            './tests/**/*.spec.ts': ['webpack'] //, 'sourcemap'
         },
 
         reporters: ['progress']

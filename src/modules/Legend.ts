@@ -1,222 +1,211 @@
-import { isEnablePrintWarn } from "./PrintWarn";
+import { Widget, IConfig } from "./Widget";
 
-import { CacheEvent } from "../modules/CacheEvent";
 import { Drag } from "./Drag";
+import { Button } from "./buttons/Button";
 import { ISeries } from "../series/index";
 
-import { ITooltipConfig, Tooltip } from "./Tooltip";
-
-import { createDOM, isNumeric, mergeIf } from "../utils/util";
+import { isNumeric } from "../utils/util";
 
 import "../less/legend.less";
 
-export interface ILegendEvents {
-    onChangeWidth?: (legend: Legend) => any;
-    onSelectSeries?: (legend: Legend) => any;
-    onHideSeries?: (legend: Legend) => any; // show or hide
-}
+export class Legend extends Widget {
 
-export interface ILegendConfig {
-    width?: number; // 0 if need hide
-    show?: boolean;
-    minWidth?: number;
-    maxWidth?: number;
-    draggable?: boolean;
-    tooltip?: ITooltipConfig | boolean;
-    events?: ILegendEvents;
-}
+    public static config: IConfig = {
+        width: 250,
+        minWidth: 80,
+        maxWidth: 300,
+        draggable: true,
+        // events: {
+        //     onChangeWidth: (legend: Legend) => {},
+        //     onSelectSeries: (legend: Legend, series: ISeries) => {},
+        //     onHideSeries: (legend: Legend) => {}, // show or hide
+        // },
+    };
 
-const template: string = [
-    "<div class=\"chart-time-legend\">",
-        "<div class=\"chart-time-legend-wrap\">", // chart-time-legend-wrap-top
-            "<div class=\"chart-time-legend-content\"></div>",
+    public static template: string = [
+        "<div class=\"chart-time-legend\">",
+            "<div class=\"chart-time-legend-drag\"></div>",
+            "<div class=\"chart-time-legend-tool\"></div>",
+            "<div class=\"chart-time-legend-wrap\">", // chart-time-legend-wrap-top
+                "<div class=\"chart-time-legend-content\"></div>",
+            "</div>",
         "</div>",
-        "<div class=\"chart-time-legend-drag\"></div>",
-        "<div class=\"chart-time-legend-tool\"></div>", // chart-time-legend-tool-hide
-    "</div>",
-].join("");
+    ].join("");
 
-const defaultConfig = {
-    width: 250,
-    show: true,
-    minWidth: 80,
-    maxWidth: 300,
-    draggable: true,
-    tooltip: {
-        showDelay: 1000,
-        hideDelay: 3000,
-        saveDelay: 1000,
-    },
-};
-
-export class Legend {
-
-    public width: number;
     public minWidth: number;
     public maxWidth: number;
-    public draggable: boolean;
-
-    public isShow: boolean;
+    public isDraggable: boolean;
 
     public dragDrop: Drag;
-    public series: ISeries[];
 
+    public series: ISeries[];
     public selected: ISeries;
 
-    public events: ILegendEvents;
+    public buttons: Button[];
+    private markup: string[];
 
-    public tooltip: Tooltip;
-
-    private cacheEvent: CacheEvent;
-
-    private container: HTMLDivElement;
     private content: HTMLDivElement;
     private tool: HTMLDivElement;
     private drag: HTMLDivElement;
 
-    constructor(bindTo: Element, config: ILegendConfig) {
-        mergeIf(config, defaultConfig);
-        this.events = config.events || {};
+    public init(config: IConfig): void {
+        this.dragDrop = new Drag(this.onMove.bind(this));
 
-        this.container = createDOM(template) as HTMLDivElement;
-        bindTo.appendChild(this.container);
+        this.buttons = [];
+        this.selected = null;
+        this.minWidth = config.minWidth;
+        this.maxWidth = config.maxWidth;
+        this.isDraggable = config.draggable;
 
+        super.init(config);
+    }
+
+    public afterRender(): void {
         this.content = this.container.querySelector(".chart-time-legend-content") as HTMLDivElement;
         this.tool = this.container.querySelector(".chart-time-legend-tool") as HTMLDivElement;
         this.drag = this.container.querySelector(".chart-time-legend-drag") as HTMLDivElement;
 
+        if (this.buttons) {
+            this.buttons.forEach((btn: Button) => {
+                btn.bindTo(this.tool);
+            });
+        }
+
+        if (this.markup) {
+            this.content.innerHTML = this.markup.join("");
+            this.markup = null;
+        }
+
+        if (this.series) {
+            this.load(this.series);
+        }
+
         this.initEvent();
-
-        this.initTooltip(typeof config.tooltip === "boolean" ? { show: config.tooltip } : (config.tooltip || {}));
-
-        this.dragDrop = new Drag(this.onMove.bind(this));
-
-        this.minWidth = config.minWidth;
-        this.maxWidth = config.maxWidth;
-        this.setDraggable(config.draggable);
-        this._setWidth(config.width);
-        this._show(config.show);
-
-        this.selected = null;
+        this.daggable(this.isDraggable);
     }
 
     public update(series: ISeries[]): void {
         const ln: number = series.length;
-        let markup = "";
+        const markup: string[] = [];
 
         for (let i: number = 0; i < ln; ++i) {
-            markup += this.getMarkupItem(series[i]);
+            markup.push(this.getMarkupItem(series[i]));
         }
 
-        this.content.innerHTML = markup;
+        if (this.content) {
+            this.content.innerHTML = markup.join("");
+        } else {
+            this.markup = markup;
+        }
     }
 
     public load(series: ISeries[]): void {
-        const children: HTMLCollection = this.content.children;
-        const ln: number = children.length;
-        let item: HTMLDivElement;
+        if (this.content) {
+            const children: HTMLCollection = this.content.children;
+            const ln: number = children.length;
+            let item: HTMLDivElement;
 
-        for (let i: number = 0; i < ln; ++i) {
-            item = children[i] as HTMLDivElement;
-            item.style.display = series[i].data ? "" : "none";
+            for (let i: number = 0; i < ln; ++i) {
+                item = children[i] as HTMLDivElement;
+                item.style.display = series[i].data ? "" : "none";
+            }
         }
 
         this.series = series;
     }
 
     public setWidth(width: number): void {
-        if (this._setWidth(width) && this.events.onChangeWidth) {
-            this.events.onChangeWidth(this);
+        const w: number = this.width;
+        this.setSize(width, null);
+        if (w !== this.width) {
+            this.fire("onChangeWidth", this.width);
         }
+    }
+
+    public setSize(width: number, height: number): void {
+        const classSmall: string = "chart-time-legend-tool-small";
+        let hide: boolean = false;
+
+        if (width > this.maxWidth) {
+            width = this.maxWidth;
+        }
+
+        if (width < this.minWidth) {
+            hide = true;
+            width = 10;
+
+            if (this.isShowAnyBtn()) {
+                width += 35;
+            }
+        }
+
+        if (this.container) {
+            this.showEl(this.content, !hide);
+            hide ? this.addClass(this.tool, classSmall) : this.removeClass(this.tool, classSmall);
+        }
+
+        super.setSize(width, null);
     }
 
     public show(show: boolean) {
-        if (this._show(show !== false) && this.events.onChangeWidth) {
-            this.events.onChangeWidth(this);
+        const s: boolean = this.isShow;
+        super.show(show);
+        if (s !== this.isShow) {
+            this.fire("onChangeWidth", this.width);
         }
     }
 
-    public addBtn(
-            html: string[],
-            show: boolean,
-            tooltip: string,
-            callback: (div: HTMLDivElement, cacheEvent: CacheEvent) => void,
-        ): void {
-
-        const div: HTMLDivElement = document.createElement("div");
-        div.setAttribute("class", "chart-time-icon-wrap");
-        div.setAttribute("data-tooltip", tooltip);
-        div.appendChild(createDOM(html.join("")));
-        this.tool.appendChild(div);
-        callback(div, this.cacheEvent);
-        this.showBtn(show, this.tool.children.length - 1);
+    public addBtn(btn: Button): void {
+        this.buttons.push(btn);
+        if (this.tool) {
+            btn.bindTo(this.tool);
+        }
     }
 
-    public getBtn(index: number): HTMLDivElement {
-        return this.tool.children[index] as HTMLDivElement;
+    public getBtn(index: number): Button {
+        return this.buttons[index];
     }
 
     public showBtn(show: boolean, index?: number): void {
         show = show !== false;
 
-        let btn: HTMLDivElement;
-
         if (isNumeric(index)) {
-            btn = this.tool.children[index] as HTMLDivElement;
-            if (show === (btn.style.display === "none")) {
-                btn.style.display = show ? "" : "none";
-            }
-            this.showTool(show || this.isShowAnyBtn());
-
+            this.buttons[index].show(show);
             return;
         }
 
-        const ln: number = this.tool.children.length;
+        const ln: number = this.buttons.length;
         for (index = 0; index < ln; ++index) {
-            btn = this.tool.children[index] as HTMLDivElement;
-            btn.style.display = show ? "" : "none";
+            this.buttons[index].show(show);
         }
-
-        this.showTool(show);
     }
 
-    public setDraggable(dragable: boolean): void {
-        this.draggable = dragable !== false;
-        const classItem: string = "chart-time-legend-drag";
-        this.drag.setAttribute("class", classItem + (this.draggable ? " " + classItem + "-draggable" : ""));
+    public daggable(dragable: boolean): void {
+        this.isDraggable = dragable !== false;
+        const classDrag: string = "chart-time-legend-drag-draggable";
+        this.isDraggable ? this.addClass(this.drag, classDrag) : this.removeClass(this.drag, classDrag);
     }
 
     public destroy(): void {
-        if (this.container === null) {
-            if (isEnablePrintWarn()) {
-                console.log("legend destroyed!");
-            }
-
-            return;
-        }
-
         this.dragDrop.destroy();
         this.dragDrop = null;
 
-        this.tooltip.destroy();
-        this.tooltip = null;
-
-        this.cacheEvent.off();
-        this.cacheEvent = null;
-
-        this.container.parentNode.removeChild(this.container);
+        this.buttons.forEach((btn: Button) => {
+            btn.destroy();
+        });
+        this.buttons = null;
 
         this.series = null;
+        this.selected = null;
 
-        this.container = null;
         this.content = null;
         this.tool = null;
         this.drag = null;
+
+        super.destroy();
     }
 
     private initEvent(): void {
-        this.cacheEvent = new CacheEvent();
-
         this.cacheEvent.on(this.drag, {
             mousedown: this.onStartDrag.bind(this),
         });
@@ -228,30 +217,8 @@ export class Legend {
         });
     }
 
-    private initTooltip(config: ITooltipConfig): void {
-        const me: Legend = this;
-
-        config.events = {
-            onCreate(tooltip: Tooltip, event: MouseEvent) {
-                tooltip.getTooltip().classList.add("chart-time-legend-tooltip");
-            },
-            onMove(tooltip: Tooltip, event: MouseEvent) {
-                const div: HTMLDivElement = me.findDom(event, "chart-time-icon-wrap", "chart-time-legend-tool");
-
-                if (div) {
-                    tooltip.update([div.getAttribute("data-tooltip")]);
-                    return true;
-                }
-
-                return false;
-            },
-        };
-
-        this.tooltip = new Tooltip(this.tool, config);
-    }
-
     private onStartDrag(event: MouseEvent): void {
-        if (this.draggable) {
+        if (this.isDraggable) {
             this.dragDrop.start(event, -this.width, 0);
         }
     }
@@ -301,20 +268,27 @@ export class Legend {
     }
 
     private onHideSeries(event: MouseEvent): void {
-        const div: HTMLDivElement = this.findDom(event, "chart-time-legend-item", "chart-time-legend-content");
+        const classItem: string = "chart-time-legend-item";
+        const classContent: string = "chart-time-legend-content";
+        const classItemOff: string = "chart-time-legend-item-off";
+
+        const div: HTMLDivElement = this.findDom(event, classItem, classContent);
+
         if (div) {
             const s: ISeries = this.findSeries(div);
             s.show = s.show === false;
-            div.setAttribute("class", "chart-time-legend-item" + (s.show ? "" : " chart-time-legend-item-off"));
+            s.show ? this.removeClass(div, classItemOff) : this.addClass(div, classItemOff);
 
-            if (this.events.onHideSeries) {
-                this.events.onHideSeries(this);
-            }
+            this.fire("onHideSeries");
         }
     }
 
     private onSelectSeries(event: MouseEvent): void {
-        const div: HTMLDivElement = this.findDom(event, "chart-time-legend-item", "chart-time-legend-content");
+        const classItem: string = "chart-time-legend-item";
+        const classContent: string = "chart-time-legend-content";
+
+        const div: HTMLDivElement = this.findDom(event, classItem, classContent);
+
         let selected: ISeries = null;
 
         if (div) {
@@ -334,70 +308,18 @@ export class Legend {
     private setSelected(selected: ISeries): void {
         if (this.selected !== selected) {
             this.selected = selected;
-
-            if (this.events.onSelectSeries) {
-                this.events.onSelectSeries(this);
-            }
+            this.fire("onSelectSeries", selected);
         }
-    }
-
-    private _setWidth(width: number): boolean {
-        if (width > this.maxWidth) {
-            width = this.maxWidth;
-        }
-
-        let hide: boolean = false;
-        if (width < this.minWidth) {
-            hide = true;
-            width = 10;
-
-            if (this.isShowAnyBtn()) {
-                width += 35;
-            }
-        }
-
-        if (this.width !== width) {
-            this.container.style.width = width + "px";
-            this.content.style.display = hide ? "none" : "";
-
-            const className: string = "chart-time-legend-tool-small";
-            hide ? this.tool.classList.add(className) : this.tool.classList.remove(className);
-
-            this.width = width;
-            return true;
-        }
-
-        return false;
-    }
-
-    private _show(show: boolean): boolean {
-        if (this.isShow !== show) {
-            this.isShow = show;
-            this.container.style.display = this.isShow ? "" : "none";
-            return true;
-        }
-
-        return false;
     }
 
     private isShowAnyBtn(): boolean {
-        const ch: HTMLCollection = this.tool.children;
-        const ln: number = ch.length;
+        const ln: number = this.buttons.length;
         for (let i: number = 0; i < ln; ++i) {
-            if ((ch[i] as HTMLDivElement).style.display !== "none") {
+            if (this.buttons[i].isShow) {
                 return true;
             }
         }
 
         return false;
-    }
-
-    private showTool(show: boolean): void {
-        let className: string;
-
-        className = "chart-time-legend-tool-hide";
-        show ? this.tool.classList.remove(className) : this.tool.classList.add(className);
-        className = "chart-time-legend-wrap-top";
-        show ? this.content.classList.remove(className) : this.content.classList.add(className);
     }
 }

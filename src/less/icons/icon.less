@@ -1,5 +1,4 @@
-@color-icon: #0093bc;
-@color-icon-hover: #c7cfec;
+@import "./../global.less";
 
 .@{base-class-name}-icon {
     position: relative;
@@ -24,4 +23,13 @@
             border-color: @color-icon-hover;
         }
     }
+}
+
+// TODO
+.@{base-class-name}-button-tooltip {
+    border: 1px dotted cyan;
+    background-color: cyan;
+    white-space: nowrap;
+    font-size: 14px;
+    padding: 3px;
 }

@@ -1,5 +1,5 @@
 type ActionFn = (element: any, type: string, handler: () => any) => void;
-type wrapFn = (element: Element, type: any) => void;
+type wrapFn = (element: any, type: any) => void;
 
 function _on(element: any, type: string, handler: () => any): void {
     if (type === "wheel") {
@@ -28,7 +28,7 @@ function _off(element: any, type: string, handler: () => any): void {
 }
 
 function wrapEvent(action: ActionFn): wrapFn {
-    return (function each(element: Element, listeners: any): void {
+    return (function each(element: any, listeners: any): void {
         for (const eventName in listeners) {
             if (listeners.hasOwnProperty(eventName)) {
                 action(element, eventName, listeners[eventName]);

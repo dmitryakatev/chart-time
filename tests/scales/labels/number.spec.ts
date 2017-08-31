@@ -1,4 +1,4 @@
-import { findFactor } from "./number";
+import { findFactor } from "./../../../src/scales/labels/number";
 
 describe("number unit test", () => {
     it("must find a factor", () => {
