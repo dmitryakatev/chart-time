@@ -583,11 +583,14 @@ export class ChartTime extends Widget {
             const bodyWidth: number = sizeBody[0];
             const x: number = bodyWidth * this.scale * percent + this.offset;
 
-            this.timeLine.style.display = "block";
-            this.timeLine.style.left = x + "px";
-        } else {
-            this.timeLine.style.display = "none";
+            if (x >= 0 && x <= bodyWidth) {
+                this.timeLine.style.display = "block";
+                this.timeLine.style.left = x + "px";
+                return;
+            }
         }
+
+        this.timeLine.style.display = "none";
     }
 
     private recalculate(series: ISeries[], sizeBody: number[]): void {

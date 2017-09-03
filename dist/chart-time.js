@@ -1003,12 +1003,13 @@ var ChartTime = (function (_super) {
             var percent = (this.valTime.getTime() - xScale.min) / (xScale.max - xScale.min);
             var bodyWidth = sizeBody[0];
             var x = bodyWidth * this.scale * percent + this.offset;
-            this.timeLine.style.display = "block";
-            this.timeLine.style.left = x + "px";
+            if (x >= 0 && x <= bodyWidth) {
+                this.timeLine.style.display = "block";
+                this.timeLine.style.left = x + "px";
+                return;
+            }
         }
-        else {
-            this.timeLine.style.display = "none";
-        }
+        this.timeLine.style.display = "none";
     };
     ChartTime.prototype.recalculate = function (series, sizeBody) {
         this.eachGroupSeries(series, "source", this.interpreter(sizeBody), this.calculate);
