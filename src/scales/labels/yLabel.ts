@@ -130,39 +130,38 @@ function _updateLabels(scalesStub: IScaleStub[], scalesModifed: IScaleModifed[])
 
 function targetUpdate(scaleStub: IScaleStub, scaleModifed: IScaleModifed): void {
     let start: number = scaleModifed.step[0];
-    let finish: number = scaleModifed.step[1];
-    let step: number = scaleModifed.step[2];
+    const finish: number = scaleModifed.step[1];
+    const step: number = scaleModifed.step[2];
 
     let factor: number = scaleModifed.factor[0];
-    let exponent: number = scaleModifed.factor[1];
+    const exponent: number = scaleModifed.factor[1];
 
     // установим реальное минимальное и максимальное значение
     scaleStub.min = start * factor;
     scaleStub.max = finish * factor;
 
     // обновим надписи
-    factor = 1;
-    while (step % FACTOR === 0) {
-        step /= FACTOR;
-        factor *= FACTOR;
-        ++exponent;
+    let rStep: number = step;
+    let zeros: number = 0;
+    while (rStep % FACTOR === 0) {
+        rStep /= FACTOR;
+        ++zeros;
     }
 
-    start /= factor;
-    finish /= factor;
+    let toFixed: number = zeros + exponent;
 
     let expStr = "";
-    if (Math.abs(exponent) > MAX_EXPONENT) {
-        expStr = "e" + (exponent < 0 ? "-" : "+") + (Math.abs(exponent) + 1);
-        exponent = -1;
+    if (Math.abs(toFixed) > MAX_EXPONENT) {
+        expStr = "e" + (toFixed < 0 ? "-" : "+") + (Math.abs(toFixed) + 1);
+        factor = Math.pow(FACTOR, zeros + 1);
+        toFixed = 1;
     }
 
-    factor = Math.pow(FACTOR, exponent);
-    exponent = Math.abs(exponent);
+    toFixed = toFixed >= 0 ? 0 : Math.abs(toFixed);
 
     scaleStub.labels = [];
     for (; start <= finish; start += step) {
-        scaleStub.labels.push((start < 0 ? "" : " ") + (start * factor).toFixed(exponent) + expStr);
+        scaleStub.labels.push((start < 0 ? "" : " ") + (start * factor).toFixed(toFixed) + expStr);
     }
 }
 

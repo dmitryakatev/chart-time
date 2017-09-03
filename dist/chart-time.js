@@ -2607,7 +2607,9 @@ var ChartGroup = (function (_super) {
         var countShow = 0;
         this.charts.forEach(function (chartTime) {
             chartTime.disableRedraw(true);
-            if (chartTime.getSeriesToDraw().length > 0) {
+            if (chartTime.series.some(function (s) {
+                return !!s.data;
+            })) {
                 chartTime.show(true);
                 ++countShow;
             }
@@ -2830,7 +2832,7 @@ var Full = (function (_super) {
         this.cacheEvent.on(this.container, {
             click: function () {
                 _this.chartTime.scale = 1;
-                _this.chartTime.offset = 1;
+                _this.chartTime.offset = 0;
                 _this.chartTime.redraw();
                 _this.chartTime.fire("onChangeScale");
             },
@@ -3126,7 +3128,8 @@ var Legend = (function (_super) {
         this.setWidth(-1 * width);
     };
     Legend.prototype.getMarkupItem = function (s) {
-        return "<div class=\"chart-time-legend-item\" data-key=\"" + s.id + "\">" +
+        var hideCls = s.show ? "" : "chart-time-legend-item-off";
+        return "<div class=\"chart-time-legend-item " + hideCls + "\" data-key=\"" + s.id + "\">" +
             "<div class=\"chart-time-legend-item-color\"" +
             " style=\"background-color: " + s.color + ";opacity: " + s.opacity + "\">" +
             "&nbsp;</div>" +
@@ -3437,24 +3440,23 @@ function targetUpdate(scaleStub, scaleModifed) {
     scaleStub.min = start * factor;
     scaleStub.max = finish * factor;
     // обновим надписи
-    factor = 1;
-    while (step % FACTOR === 0) {
-        step /= FACTOR;
-        factor *= FACTOR;
-        ++exponent;
+    var rStep = step;
+    var zeros = 0;
+    while (rStep % FACTOR === 0) {
+        rStep /= FACTOR;
+        ++zeros;
     }
-    start /= factor;
-    finish /= factor;
+    var toFixed = zeros + exponent;
     var expStr = "";
-    if (Math.abs(exponent) > MAX_EXPONENT) {
-        expStr = "e" + (exponent < 0 ? "-" : "+") + (Math.abs(exponent) + 1);
-        exponent = -1;
+    if (Math.abs(toFixed) > MAX_EXPONENT) {
+        expStr = "e" + (toFixed < 0 ? "-" : "+") + (Math.abs(toFixed) + 1);
+        factor = Math.pow(FACTOR, zeros + 1);
+        toFixed = 1;
     }
-    factor = Math.pow(FACTOR, exponent);
-    exponent = Math.abs(exponent);
+    toFixed = toFixed >= 0 ? 0 : Math.abs(toFixed);
     scaleStub.labels = [];
     for (; start <= finish; start += step) {
-        scaleStub.labels.push((start < 0 ? "" : " ") + (start * factor).toFixed(exponent) + expStr);
+        scaleStub.labels.push((start < 0 ? "" : " ") + (start * factor).toFixed(toFixed) + expStr);
     }
 }
 function updateLabels(scalesStub, rawSteps) {
