@@ -21,7 +21,7 @@ export class Full extends Button {
         this.cacheEvent.on(this.container, {
             click: () => {
                 this.chartTime.scale = 1;
-                this.chartTime.offset = 1;
+                this.chartTime.offset = 0;
                 this.chartTime.redraw();
 
                 this.chartTime.fire("onChangeScale");

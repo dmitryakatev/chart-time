@@ -13,14 +13,25 @@ body {
     padding: 0px;
 }
 
-body {
-    overflow: auto;
+.info {
+    font-size: 20px;
+    margin: 5px;
 }
     </style>
 </head>
 <body>
+    <div class="container"></div>
+    <input type="button" onclick="update();" value="update" />
+
+    <div class="info">
+        total points: <span class="count-points"></span>.
+    </div>
+    <div class="info">
+        time of processing: <span class="processing"></span> ms
+    </div>
+
 	<script src="./../dist/chart-time.js" type="text/javascript"></script>
-	<script src="db.js" type="text/javascript"></script>
+	<script src="generate.js" type="text/javascript"></script>
 	<script src="main.js" type="text/javascript"></script>
 </body>
 </html>
