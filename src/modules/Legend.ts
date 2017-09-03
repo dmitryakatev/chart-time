@@ -228,7 +228,8 @@ export class Legend extends Widget {
     }
 
     private getMarkupItem(s: ISeries): string {
-        return "<div class=\"chart-time-legend-item\" data-key=\"" + s.id + "\">" +
+        const hideCls: string = s.show ? "" : "chart-time-legend-item-off";
+        return "<div class=\"chart-time-legend-item " + hideCls + "\" data-key=\"" + s.id + "\">" +
             "<div class=\"chart-time-legend-item-color\"" +
                 " style=\"background-color: " + s.color + ";opacity: " + s.opacity + "\">" +
             "&nbsp;</div>" +

@@ -265,7 +265,9 @@ export class ChartGroup extends Widget {
         this.charts.forEach((chartTime: ChartTime) => {
             chartTime.disableRedraw(true);
 
-            if (chartTime.getSeriesToDraw().length > 0) {
+            if (chartTime.series.some((s: ISeries) => {
+                    return !!s.data;
+                })) {
                 chartTime.show(true);
                 ++countShow;
             } else {
