@@ -133,22 +133,22 @@ var chartGroup = new ChartTime.ChartGroup({
 
     scales: [{
         key: 'scale-one',
-        isRight: true,
+        right: true,
         index: 0,
         title: 'Шкала 1'
     }, {
         key: 'scale-two',
-        isRight: false,
+        right: false,
         index: 0,
         title: 'Шкала 2'
     }, {
         key: 'scale-three',
-        isRight: false,
+        right: false,
         index: 1,
         title: 'Шкала 3'
     }, {
         key: 'scale-four',
-        isRight: false,
+        right: false,
         index: 2,
         title: 'Шкала 4'
     }]
