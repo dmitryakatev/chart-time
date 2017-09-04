@@ -153,6 +153,7 @@ export class ChartGroup extends Widget {
         this.charts.forEach((chartTime: ChartTime) => {
             this.extendSource(chartTime.id, data);
 
+            chartTime.disableRedraw(true);
             chartTime.scale = 1;
             chartTime.offset = 0;
 

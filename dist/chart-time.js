@@ -2510,6 +2510,7 @@ var ChartGroup = (function (_super) {
         var scale;
         this.charts.forEach(function (chartTime) {
             _this.extendSource(chartTime.id, data);
+            chartTime.disableRedraw(true);
             chartTime.scale = 1;
             chartTime.offset = 0;
             chartTime.series = _this.series[chartTime.id];
