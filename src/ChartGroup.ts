@@ -292,16 +292,8 @@ export class ChartGroup extends Widget {
     }
 
     public destroy(): void {
-        if (this.container === null) {
-            if (isEnablePrintWarn()) {
-                console.log("chartGroup destroyed!");
-            }
+        this.update({});
 
-            return;
-        }
-
-        this.defaultScale = ChartTime.prototype.updateScales.call(this, []);
-        this.charts = this.updater.update([], this.charts);
         this.container.parentNode.removeChild(this.container);
 
         this.container = null;
@@ -311,6 +303,8 @@ export class ChartGroup extends Widget {
         this.source = null;
         this.series = null;
         this.events = null;
+
+        super.destroy();
     }
 
     public showBtn(show: boolean, index?: number): void {
@@ -424,6 +418,8 @@ export class ChartGroup extends Widget {
 
         this.config.bindTo = this.container || null;
         const chartTime: ChartTime = new ChartTime(this.config);
+        chartTime.scales[0].destroy();
+        chartTime.scales = null;
         this.config.bindTo = null;
 
         if (chartTime.container) {

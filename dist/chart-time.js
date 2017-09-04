@@ -2417,7 +2417,6 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var PrintWarn_1 = __webpack_require__(1);
 var ChartTime_1 = __webpack_require__(7);
 var Widget_1 = __webpack_require__(2);
 var Damage_1 = __webpack_require__(8);
@@ -2632,14 +2631,7 @@ var ChartGroup = (function (_super) {
         });
     };
     ChartGroup.prototype.destroy = function () {
-        if (this.container === null) {
-            if (PrintWarn_1.isEnablePrintWarn()) {
-                console.log("chartGroup destroyed!");
-            }
-            return;
-        }
-        this.defaultScale = ChartTime_1.ChartTime.prototype.updateScales.call(this, []);
-        this.charts = this.updater.update([], this.charts);
+        this.update({});
         this.container.parentNode.removeChild(this.container);
         this.container = null;
         this.config = null;
@@ -2647,6 +2639,7 @@ var ChartGroup = (function (_super) {
         this.source = null;
         this.series = null;
         this.events = null;
+        _super.prototype.destroy.call(this);
     };
     ChartGroup.prototype.showBtn = function (show, index) {
         this.charts.forEach(function (chartTime) {
@@ -2737,6 +2730,8 @@ var ChartGroup = (function (_super) {
         this.config.scales = null;
         this.config.bindTo = this.container || null;
         var chartTime = new ChartTime_1.ChartTime(this.config);
+        chartTime.scales[0].destroy();
+        chartTime.scales = null;
         this.config.bindTo = null;
         if (chartTime.container) {
             chartTime.container.style.margin = this.marginChart + "px";
