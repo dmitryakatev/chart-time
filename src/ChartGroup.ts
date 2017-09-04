@@ -294,6 +294,7 @@ export class ChartGroup extends Widget {
     public destroy(): void {
         this.update({});
         this.scales[0].destroy();
+        this.scales = null;
 
         this.config = null;
         this.updater = null;

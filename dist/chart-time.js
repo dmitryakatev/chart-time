@@ -2633,6 +2633,7 @@ var ChartGroup = (function (_super) {
     ChartGroup.prototype.destroy = function () {
         this.update({});
         this.scales[0].destroy();
+        this.scales = null;
         this.config = null;
         this.updater = null;
         this.source = null;
