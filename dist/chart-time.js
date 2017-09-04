@@ -2632,8 +2632,7 @@ var ChartGroup = (function (_super) {
     };
     ChartGroup.prototype.destroy = function () {
         this.update({});
-        this.container.parentNode.removeChild(this.container);
-        this.container = null;
+        this.scales[0].destroy();
         this.config = null;
         this.updater = null;
         this.source = null;
