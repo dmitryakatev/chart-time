@@ -1291,6 +1291,7 @@ var ChartTime = (function (_super) {
                         me.pointer.style.display = "none";
                     }
                 }
+                tooltip.show(isUpdate);
                 if (isUpdate) {
                     var trList_1 = tTip.children[0].children[0].children;
                     var fullX = xScale.max - xScale.min;
@@ -1315,7 +1316,6 @@ var ChartTime = (function (_super) {
                     me.rawTime = null;
                 }
                 me.fire("onChangeTooltip");
-                return isUpdate;
             },
             onRemove: function (tooltip, event) {
                 me.pointer.style.display = "none";
@@ -2058,7 +2058,7 @@ var XScale = (function (_super) {
         var partTime = fullX / 1000 / widthScale * widthText;
         var index = bisect.left(intervals, partTime);
         // найдем нужный формат. выводить дату или время
-        var format = index < 7 ? util_1.formatTime : util_1.formatDate;
+        var format = index < 8 ? util_1.formatTime : util_1.formatDate;
         // найдем шаг с которым мы будем идти. (преобразуем обратно в миллисекунды)
         var step = intervals[index] * 1000;
         // узнаем какое время в координате 0

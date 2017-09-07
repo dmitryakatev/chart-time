@@ -948,6 +948,8 @@ export class ChartTime extends Widget {
                     }
                 }
 
+                tooltip.show(isUpdate);
+
                 if (isUpdate) {
                     const trList: HTMLCollection = tTip.children[0].children[0].children;
                     const fullX: number = xScale.max - xScale.min;
@@ -976,8 +978,6 @@ export class ChartTime extends Widget {
                 }
 
                 me.fire("onChangeTooltip");
-
-                return isUpdate;
             },
             onRemove(tooltip: Tooltip, event: MouseEvent) {
                 me.pointer.style.display = "none";

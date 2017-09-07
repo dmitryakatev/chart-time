@@ -54,7 +54,7 @@ export class XScale extends BaseScale {
         const index: number = bisect.left(intervals, partTime);
 
         // найдем нужный формат. выводить дату или время
-        const format: (data: Date) => string = index < 7 ? formatTime : formatDate;
+        const format: (data: Date) => string = index < 8 ? formatTime : formatDate;
 
         // найдем шаг с которым мы будем идти. (преобразуем обратно в миллисекунды)
         const step: number = intervals[index] * 1000;
