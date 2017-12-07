@@ -203,19 +203,20 @@ export class Line extends BaseSeries {
         let first: IItem = null;
         let item: IItem;
 
-        let x: number;
-        let y0: number;
-        let y1: number;
+        let x0: number; // предыдущий x
+        let x1: number; // текущий x
+        let y1: number; // текущий y
 
         while (++start < finish) {
             item = this.filter[start];
+            x1 = coord.getX(item);
             y1 = coord.getY(item);
             if (y1 !== null) {
                 first = item;
-                y0 = y1;
+                x0 = x1;
 
                 ctx.beginPath();
-                ctx.moveTo(coord.getX(item), y1);
+                ctx.moveTo(x1, y1);
                 break;
             }
         }
@@ -230,23 +231,24 @@ export class Line extends BaseSeries {
 
                 while (++start < finish) {
                     item = this.filter[start];
+                    x1 = coord.getX(item);
                     y1 = coord.getY(item);
                     if (y1 !== null) {
                         first = item;
-                        y0 = y1;
+                        x0 = x1;
 
                         ctx.beginPath();
-                        ctx.moveTo(coord.getX(item), y1);
+                        ctx.moveTo(x1, y1);
                         break;
                     }
                 }
 
             } else {
                 if (this.stair) {
-                    x = coord.getX(item);
-                    ctx.lineTo(x, y0);
-                    ctx.lineTo(x, y1);
-                    y0 = y1;
+                    x1 = coord.getX(item);
+                    ctx.lineTo(x0, y1);
+                    ctx.lineTo(x1, y1);
+                    x0 = x1;
                 } else {
                     ctx.lineTo(coord.getX(item), y1);
                 }
@@ -336,6 +338,12 @@ export class Line extends BaseSeries {
             return null;
         }
 
+        // при степенчатой отрисовке всегда берем правое значение
+        if (this.stair) {
+            return valueRight;
+        }
+
+        // при обычной отрисовке берем ближнюю точку
         xLeft = coord.getX(itemLeft);
         return Math.abs(xLeft - x) < Math.abs(xRight - x) ? valueLeft : valueRight;
     }

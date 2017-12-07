@@ -3754,17 +3754,18 @@ var Line = (function (_super) {
         var finish = this.finish + 1;
         var first = null;
         var item;
-        var x;
-        var y0;
-        var y1;
+        var x0; // предыдущий x
+        var x1; // текущий x
+        var y1; // текущий y
         while (++start < finish) {
             item = this.filter[start];
+            x1 = coord.getX(item);
             y1 = coord.getY(item);
             if (y1 !== null) {
                 first = item;
-                y0 = y1;
+                x0 = x1;
                 ctx.beginPath();
-                ctx.moveTo(coord.getX(item), y1);
+                ctx.moveTo(x1, y1);
                 break;
             }
         }
@@ -3776,22 +3777,23 @@ var Line = (function (_super) {
                 first = null;
                 while (++start < finish) {
                     item = this.filter[start];
+                    x1 = coord.getX(item);
                     y1 = coord.getY(item);
                     if (y1 !== null) {
                         first = item;
-                        y0 = y1;
+                        x0 = x1;
                         ctx.beginPath();
-                        ctx.moveTo(coord.getX(item), y1);
+                        ctx.moveTo(x1, y1);
                         break;
                     }
                 }
             }
             else {
                 if (this.stair) {
-                    x = coord.getX(item);
-                    ctx.lineTo(x, y0);
-                    ctx.lineTo(x, y1);
-                    y0 = y1;
+                    x1 = coord.getX(item);
+                    ctx.lineTo(x0, y1);
+                    ctx.lineTo(x1, y1);
+                    x0 = x1;
                 }
                 else {
                     ctx.lineTo(coord.getX(item), y1);
@@ -3861,6 +3863,11 @@ var Line = (function (_super) {
         if (valueLeft === null) {
             return null;
         }
+        // при степенчатой отрисовке всегда берем правое значение
+        if (this.stair) {
+            return valueRight;
+        }
+        // при обычной отрисовке берем ближнюю точку
         xLeft = coord.getX(itemLeft);
         return Math.abs(xLeft - x) < Math.abs(xRight - x) ? valueLeft : valueRight;
     };
