@@ -203,8 +203,8 @@ export class Line extends BaseSeries {
         let first: IItem = null;
         let item: IItem;
 
-        let x0: number; // предыдущий x
         let x1: number; // текущий x
+        let y0: number; // предыдущий y
         let y1: number; // текущий y
 
         while (++start < finish) {
@@ -213,7 +213,7 @@ export class Line extends BaseSeries {
             y1 = coord.getY(item);
             if (y1 !== null) {
                 first = item;
-                x0 = x1;
+                y0 = y1;
 
                 ctx.beginPath();
                 ctx.moveTo(x1, y1);
@@ -235,7 +235,7 @@ export class Line extends BaseSeries {
                     y1 = coord.getY(item);
                     if (y1 !== null) {
                         first = item;
-                        x0 = x1;
+                        y0 = y1;
 
                         ctx.beginPath();
                         ctx.moveTo(x1, y1);
@@ -246,9 +246,9 @@ export class Line extends BaseSeries {
             } else {
                 if (this.stair) {
                     x1 = coord.getX(item);
-                    ctx.lineTo(x0, y1);
+                    ctx.lineTo(x1, y0);
                     ctx.lineTo(x1, y1);
-                    x0 = x1;
+                    y0 = y1;
                 } else {
                     ctx.lineTo(coord.getX(item), y1);
                 }
@@ -338,9 +338,9 @@ export class Line extends BaseSeries {
             return null;
         }
 
-        // при степенчатой отрисовке всегда берем правое значение
+        // при степенчатой отрисовке всегда берем левое значение
         if (this.stair) {
-            return valueRight;
+            return valueLeft;
         }
 
         // при обычной отрисовке берем ближнюю точку

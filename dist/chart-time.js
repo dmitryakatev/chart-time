@@ -3754,8 +3754,8 @@ var Line = (function (_super) {
         var finish = this.finish + 1;
         var first = null;
         var item;
-        var x0; // предыдущий x
         var x1; // текущий x
+        var y0; // предыдущий y
         var y1; // текущий y
         while (++start < finish) {
             item = this.filter[start];
@@ -3763,7 +3763,7 @@ var Line = (function (_super) {
             y1 = coord.getY(item);
             if (y1 !== null) {
                 first = item;
-                x0 = x1;
+                y0 = y1;
                 ctx.beginPath();
                 ctx.moveTo(x1, y1);
                 break;
@@ -3781,7 +3781,7 @@ var Line = (function (_super) {
                     y1 = coord.getY(item);
                     if (y1 !== null) {
                         first = item;
-                        x0 = x1;
+                        y0 = y1;
                         ctx.beginPath();
                         ctx.moveTo(x1, y1);
                         break;
@@ -3791,9 +3791,9 @@ var Line = (function (_super) {
             else {
                 if (this.stair) {
                     x1 = coord.getX(item);
-                    ctx.lineTo(x0, y1);
+                    ctx.lineTo(x1, y0);
                     ctx.lineTo(x1, y1);
-                    x0 = x1;
+                    y0 = y1;
                 }
                 else {
                     ctx.lineTo(coord.getX(item), y1);
@@ -3863,9 +3863,9 @@ var Line = (function (_super) {
         if (valueLeft === null) {
             return null;
         }
-        // при степенчатой отрисовке всегда берем правое значение
+        // при степенчатой отрисовке всегда берем левое значение
         if (this.stair) {
-            return valueRight;
+            return valueLeft;
         }
         // при обычной отрисовке берем ближнюю точку
         xLeft = coord.getX(itemLeft);
