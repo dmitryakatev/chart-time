@@ -1,5 +1,5 @@
 import { Bisector } from "../../utils/d3";
-import { findFactor } from "./number";
+import { findFactor, OFFSET } from "./number";
 
 import { MAX_VALUE } from "../../utils/util";
 
@@ -149,15 +149,15 @@ function targetUpdate(scaleStub: IScaleStub, scaleModifed: IScaleModifed): void 
     }
 
     let toFixed: number = zeros + exponent;
-
     let expStr = "";
-    if (Math.abs(toFixed) > MAX_EXPONENT) {
-        expStr = "e" + (toFixed < 0 ? "-" : "+") + (Math.abs(toFixed) + 1);
-        factor = Math.pow(FACTOR, zeros + 1);
-        toFixed = 1;
-    }
 
-    toFixed = toFixed >= 0 ? 0 : Math.abs(toFixed);
+    if (Math.abs(exponent + OFFSET) > MAX_EXPONENT) {
+        expStr = "e" + (exponent < 0 ? "-" : "+") + (Math.abs(toFixed + 1));
+        factor = Math.pow(1 / FACTOR, zeros + 1);
+        toFixed = 1;
+    } else {
+        toFixed = toFixed >= 0 ? 0 : Math.abs(toFixed);
+    }
 
     scaleStub.labels = [];
     for (; start <= finish; start += step) {

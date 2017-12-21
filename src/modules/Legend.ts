@@ -231,7 +231,7 @@ export class Legend extends Widget {
         const hideCls: string = s.show ? "" : "chart-time-legend-item-off";
         return "<div class=\"chart-time-legend-item " + hideCls + "\" data-key=\"" + s.id + "\">" +
             "<div class=\"chart-time-legend-item-color\"" +
-                " style=\"background-color: " + s.color + ";opacity: " + s.opacity + "\">" +
+                " style=\"background-color: " + s.color + "\">" +
             "&nbsp;</div>" +
             "<span class=\"chart-time-legend-item-text\">" + s.title + "</span>" +
          "</div>";

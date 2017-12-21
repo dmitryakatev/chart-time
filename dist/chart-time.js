@@ -3128,7 +3128,7 @@ var Legend = (function (_super) {
         var hideCls = s.show ? "" : "chart-time-legend-item-off";
         return "<div class=\"chart-time-legend-item " + hideCls + "\" data-key=\"" + s.id + "\">" +
             "<div class=\"chart-time-legend-item-color\"" +
-            " style=\"background-color: " + s.color + ";opacity: " + s.opacity + "\">" +
+            " style=\"background-color: " + s.color + "\">" +
             "&nbsp;</div>" +
             "<span class=\"chart-time-legend-item-text\">" + s.title + "</span>" +
             "</div>";
@@ -3273,6 +3273,7 @@ var FLOAT = "f";
 var EXPONENT = "e";
 var minValue = 1000000; // 1'000'000
 var minValueLn = minValue.toString().length; // 7
+exports.OFFSET = minValueLn - 1;
 var symbol = {
     ".": FLOAT,
     "e": EXPONENT,
@@ -3445,12 +3446,14 @@ function targetUpdate(scaleStub, scaleModifed) {
     }
     var toFixed = zeros + exponent;
     var expStr = "";
-    if (Math.abs(toFixed) > MAX_EXPONENT) {
-        expStr = "e" + (toFixed < 0 ? "-" : "+") + (Math.abs(toFixed) + 1);
-        factor = Math.pow(FACTOR, zeros + 1);
+    if (Math.abs(exponent + number_1.OFFSET) > MAX_EXPONENT) {
+        expStr = "e" + (exponent < 0 ? "-" : "+") + (Math.abs(toFixed + 1));
+        factor = Math.pow(1 / FACTOR, zeros + 1);
         toFixed = 1;
     }
-    toFixed = toFixed >= 0 ? 0 : Math.abs(toFixed);
+    else {
+        toFixed = toFixed >= 0 ? 0 : Math.abs(toFixed);
+    }
     scaleStub.labels = [];
     for (; start <= finish; start += step) {
         scaleStub.labels.push((start < 0 ? "" : " ") + (start * factor).toFixed(toFixed) + expStr);

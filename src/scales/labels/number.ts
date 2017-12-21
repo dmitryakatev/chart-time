@@ -12,6 +12,7 @@ const EXPONENT: string = "e";
 
 const minValue: number = 1000000; // 1'000'000
 const minValueLn: number = minValue.toString().length; // 7
+export const OFFSET: number = minValueLn - 1;
 
 const symbol = {
     ".": FLOAT,
