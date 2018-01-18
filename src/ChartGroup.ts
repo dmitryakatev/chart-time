@@ -93,12 +93,14 @@ export class ChartGroup extends Widget {
 
         if (this.config.legend && this.config.legend.buttons) {
             this.config.legend.buttons = this.config.legend.buttons.map((type: string, index: number) => {
-                const info: any = { type };
                 if (type === "group") {
-                    info.chartGroup = this;
                     this.indexBtn = index;
                 }
-                return info;
+
+                return {
+                    type,
+                    chartGroup: this,
+                };
             });
         }
 

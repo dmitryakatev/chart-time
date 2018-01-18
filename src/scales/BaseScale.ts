@@ -61,8 +61,8 @@ export abstract class BaseScale implements IScale {
         this.opacity = isNumeric(config.opacity) ? config.opacity : 1;
         this.lineWidth = isNumeric(config.lineWidth) ? config.lineWidth : 1;
 
-        this.minValue = config.minValue || null;
-        this.maxValue = config.maxValue || null;
+        this.minValue = isNumeric(config.minValue) ? config.minValue : null;
+        this.maxValue = isNumeric(config.maxValue) ? config.maxValue : null;
     }
 
     public updateMinAndMax<T extends keyof ISeries, K extends keyof ISeries>(series: ISeries[], min: T, max: K): void {

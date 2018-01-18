@@ -307,6 +307,74 @@ exports.Widget = Widget;
 
 "use strict";
 
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Widget_1 = __webpack_require__(2);
+var Tooltip_1 = __webpack_require__(12);
+var util_1 = __webpack_require__(0);
+__webpack_require__(34);
+var Button = (function (_super) {
+    __extends(Button, _super);
+    function Button() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    Button.prototype.init = function (config) {
+        var _this = this;
+        _super.prototype.init.call(this, config);
+        this.chartTime = config.chartTime;
+        this.title = config.title;
+        this.tooltip = new Tooltip_1.Tooltip(util_1.mergeIf({
+            target: null,
+            show: !!this.title,
+            events: {
+                onCreate: function (tooltip, event) {
+                    _this.addClass(tooltip.container, "chart-time-button-tooltip");
+                    tooltip.update([_this.title]);
+                },
+            },
+        }, config.tooltip || {}, Button.config.tooltip));
+    };
+    Button.prototype.afterRender = function () {
+        this.container.innerHTML = this.self().icon;
+        this.tooltip.setTarget(this.container);
+    };
+    Button.prototype.destroy = function () {
+        _super.prototype.destroy.call(this);
+        this.chartTime = null;
+        if (this.tooltip) {
+            this.tooltip.destroy();
+        }
+    };
+    Button.config = {
+        chartTime: null,
+        tooltip: {
+            hideByClick: true,
+            showDelay: 2000,
+            hideDelay: 2000,
+            saveDelay: 3000,
+        },
+    };
+    Button.template = "<div class=\"chart-time-icon-wrap\"></div>";
+    return Button;
+}(Widget_1.Widget));
+exports.Button = Button;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 // алгоритм нагло спизжен из библиотеки d3. и чуть-чуть перепилен
 Object.defineProperty(exports, "__esModule", { value: true });
 var Bisector = (function () {
@@ -355,7 +423,7 @@ exports.Bisector = Bisector;
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -421,74 +489,6 @@ exports.Updater = Updater;
 
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var Widget_1 = __webpack_require__(2);
-var Tooltip_1 = __webpack_require__(12);
-var util_1 = __webpack_require__(0);
-__webpack_require__(34);
-var Button = (function (_super) {
-    __extends(Button, _super);
-    function Button() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    Button.prototype.init = function (config) {
-        var _this = this;
-        _super.prototype.init.call(this, config);
-        this.chartTime = config.chartTime;
-        this.title = config.title;
-        this.tooltip = new Tooltip_1.Tooltip(util_1.mergeIf({
-            target: null,
-            show: !!this.title,
-            events: {
-                onCreate: function (tooltip, event) {
-                    _this.addClass(tooltip.container, "chart-time-button-tooltip");
-                    tooltip.update([_this.title]);
-                },
-            },
-        }, config.tooltip || {}, Button.config.tooltip));
-    };
-    Button.prototype.afterRender = function () {
-        this.container.innerHTML = this.self().icon;
-        this.tooltip.setTarget(this.container);
-    };
-    Button.prototype.destroy = function () {
-        _super.prototype.destroy.call(this);
-        this.chartTime = null;
-        if (this.tooltip) {
-            this.tooltip.destroy();
-        }
-    };
-    Button.config = {
-        chartTime: null,
-        tooltip: {
-            hideByClick: true,
-            showDelay: 2000,
-            hideDelay: 2000,
-            saveDelay: 3000,
-        },
-    };
-    Button.template = "<div class=\"chart-time-icon-wrap\"></div>";
-    return Button;
-}(Widget_1.Widget));
-exports.Button = Button;
-
-
-/***/ }),
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -509,6 +509,7 @@ var BaseSeries = (function () {
         this.color = config.color;
         this.opacity = util_1.isNumeric(config.opacity) ? config.opacity : 1;
         this.scale = config.scale;
+        this.getTooltip = config.tooltip ? this.createAccessor(config.tooltip) : null;
     };
     BaseSeries.prototype.load = function (data, calc) {
         this.data = data;
@@ -1426,7 +1427,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Button_1 = __webpack_require__(5);
+var Button_1 = __webpack_require__(3);
 var event_1 = __webpack_require__(16);
 __webpack_require__(35);
 var isHot = false;
@@ -1935,8 +1936,8 @@ var BaseScale = (function () {
         this.color = config.color || "#000000"; // black
         this.opacity = util_1.isNumeric(config.opacity) ? config.opacity : 1;
         this.lineWidth = util_1.isNumeric(config.lineWidth) ? config.lineWidth : 1;
-        this.minValue = config.minValue || null;
-        this.maxValue = config.maxValue || null;
+        this.minValue = util_1.isNumeric(config.minValue) ? config.minValue : null;
+        this.maxValue = util_1.isNumeric(config.maxValue) ? config.maxValue : null;
     };
     BaseScale.prototype.updateMinAndMax = function (series, min, max) {
         var ln = series.length;
@@ -2015,7 +2016,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var BaseScale_1 = __webpack_require__(13);
-var d3_1 = __webpack_require__(3);
+var d3_1 = __webpack_require__(4);
 var util_1 = __webpack_require__(0);
 // 10 сек, 1 мин, 5 мин, 15 мин, 30 мин, 1 час, 3 часа, 6 часов, 1 день, 3 дня, 10 дней
 var intervals = [10, 60, 300, 900, 1800, 3600, 10800, 21600, 86400, 259200, 864000];
@@ -2420,7 +2421,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ChartTime_1 = __webpack_require__(7);
 var Widget_1 = __webpack_require__(2);
 var Damage_1 = __webpack_require__(8);
-var Updater_1 = __webpack_require__(4);
+var Updater_1 = __webpack_require__(5);
 var util_1 = __webpack_require__(0);
 var ChartGroup = (function (_super) {
     __extends(ChartGroup, _super);
@@ -2458,12 +2459,13 @@ var ChartGroup = (function (_super) {
         };
         if (this.config.legend && this.config.legend.buttons) {
             this.config.legend.buttons = this.config.legend.buttons.map(function (type, index) {
-                var info = { type: type };
                 if (type === "group") {
-                    info.chartGroup = _this;
                     _this.indexBtn = index;
                 }
-                return info;
+                return {
+                    type: type,
+                    chartGroup: _this,
+                };
             });
         }
         this.updater = new Updater_1.Updater(null, this._createChart.bind(this), this._updateChart.bind(this), this._removeChart.bind(this));
@@ -2816,7 +2818,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Button_1 = __webpack_require__(5);
+var Button_1 = __webpack_require__(3);
 __webpack_require__(32);
 var Full = (function (_super) {
     __extends(Full, _super);
@@ -2865,7 +2867,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var Button_1 = __webpack_require__(5);
+var Button_1 = __webpack_require__(3);
 __webpack_require__(33);
 var Group = (function (_super) {
     __extends(Group, _super);
@@ -2907,11 +2909,13 @@ exports.Group = Group;
 
 var ChartTime_1 = __webpack_require__(7);
 var ChartGroup_1 = __webpack_require__(18);
+var Button_1 = __webpack_require__(3);
 var Damage_1 = __webpack_require__(8);
 var Full_1 = __webpack_require__(19);
 var Group_1 = __webpack_require__(20);
 var PrintWarn_1 = __webpack_require__(1);
 ChartTime_1.ChartTime.ChartGroup = ChartGroup_1.ChartGroup;
+ChartTime_1.ChartTime.Button = Button_1.Button;
 ChartTime_1.ChartTime.injectBtn("damage", Damage_1.Damage);
 ChartTime_1.ChartTime.injectBtn("full", Full_1.Full);
 ChartTime_1.ChartTime.injectBtn("group", Group_1.Group);
@@ -3228,7 +3232,7 @@ exports.Legend = Legend;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var PrintWarn_1 = __webpack_require__(1);
-var Updater_1 = __webpack_require__(4);
+var Updater_1 = __webpack_require__(5);
 var XScale_1 = __webpack_require__(14);
 var YScale_1 = __webpack_require__(15);
 var map = (_a = {},
@@ -3344,7 +3348,7 @@ exports.findFactor = findFactor;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var d3_1 = __webpack_require__(3);
+var d3_1 = __webpack_require__(4);
 var number_1 = __webpack_require__(25);
 var util_1 = __webpack_require__(0);
 // набор "приятных" для глаз шагов
@@ -3598,7 +3602,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var d3_1 = __webpack_require__(3);
+var d3_1 = __webpack_require__(4);
 var util_1 = __webpack_require__(0);
 var BaseSeries_1 = __webpack_require__(6);
 var bisect = new d3_1.Bisector();
@@ -3806,14 +3810,18 @@ var Line = (function (_super) {
         this.drawEnd(ctx, first, item, coord);
     };
     Line.prototype.tooltip = function (row, cell, x, coord) {
-        var value = this.findTooltipValue(x, coord);
-        if (value === null) {
+        var index = this.findTooltipIndex(x, coord);
+        if (index === null) {
             row.style.display = "none";
+            return;
+        }
+        if (this.getTooltip) {
+            cell.innerHTML = this.getTooltip(this.data[index]).toString();
         }
         else {
-            row.style.display = "";
-            cell.innerHTML = value.toString();
+            cell.innerHTML = this.point.y.accessor(this.data[index]).toString();
         }
+        row.style.display = "";
     };
     Line.prototype.drawEnd = function (ctx, first, last, coord) {
         if (!first) {
@@ -3831,7 +3839,7 @@ var Line = (function (_super) {
         ctx.strokeStyle = this.color;
         ctx.stroke();
     };
-    Line.prototype.findTooltipValue = function (x, coord) {
+    Line.prototype.findTooltipIndex = function (x, coord) {
         coord.set(this.point.x.key, "");
         bisect.accessor = coord.getX.bind(coord);
         var indexLeft;
@@ -3854,7 +3862,7 @@ var Line = (function (_super) {
         }
         xRight = coord.getX(itemRight);
         if (Math.floor(xRight) === x) {
-            return valueRight;
+            return itemRight.$index;
         }
         indexLeft = indexRight - 1;
         // если x выходит за пределы слева
@@ -3868,11 +3876,11 @@ var Line = (function (_super) {
         }
         // при степенчатой отрисовке всегда берем левое значение
         if (this.stair) {
-            return valueLeft;
+            return itemLeft.$index;
         }
         // при обычной отрисовке берем ближнюю точку
         xLeft = coord.getX(itemLeft);
-        return Math.abs(xLeft - x) < Math.abs(xRight - x) ? valueLeft : valueRight;
+        return Math.abs(xLeft - x) < Math.abs(xRight - x) ? itemLeft.$index : itemRight.$index;
     };
     Line.type = "line";
     return Line;
@@ -3897,7 +3905,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var d3_1 = __webpack_require__(3);
+var d3_1 = __webpack_require__(4);
 var Coord_1 = __webpack_require__(10);
 var BaseSeries_1 = __webpack_require__(6);
 var bisect = new d3_1.Bisector();
@@ -3963,22 +3971,31 @@ var Rect = (function (_super) {
         ctx.stroke();
     };
     Rect.prototype.tooltip = function (row, cell, x, coord) {
-        var value = this.findTooltipValue(x, coord);
-        if (cell.style.display !== "none") {
-            cell.style.display = "none";
-            row.children[0].setAttribute("colspan", "2");
+        var index = this.findTooltipIndex(x, coord);
+        if (index === null) {
+            row.style.display = "none";
+            return;
         }
-        row.style.display = value ? "" : "none";
+        if (this.getTooltip) {
+            cell.innerHTML = this.getTooltip(this.data[index]);
+        }
+        else {
+            if (cell.style.display !== "none") {
+                cell.style.display = "none";
+                row.children[0].setAttribute("colspan", "2");
+            }
+        }
+        row.style.display = "";
     };
-    Rect.prototype.findTooltipValue = function (x, coord) {
+    Rect.prototype.findTooltipIndex = function (x, coord) {
         coord.set(this.point.finish.key, "");
         bisect.accessor = coord.getX.bind(coord);
         var index = bisect.left(this.filter, x);
         if (index >= this.filter.length) {
-            return false;
+            return null;
         }
         coord.set(this.point.start.key, "");
-        return coord.getX(this.filter[index]) <= x;
+        return coord.getX(this.filter[index]) <= x ? index : null;
     };
     Rect.type = "rect";
     return Rect;
@@ -3994,7 +4011,7 @@ exports.Rect = Rect;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var PrintWarn_1 = __webpack_require__(1);
-var Updater_1 = __webpack_require__(4);
+var Updater_1 = __webpack_require__(5);
 var HLine_1 = __webpack_require__(27);
 var Line_1 = __webpack_require__(28);
 var Rect_1 = __webpack_require__(29);

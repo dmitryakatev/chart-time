@@ -259,14 +259,20 @@ export class Line extends BaseSeries {
     }
 
     public tooltip(row: HTMLTableRowElement, cell: HTMLTableCellElement, x: number, coord: Coord): void {
-        const value: number = this.findTooltipValue(x, coord);
+        const index: number = this.findTooltipIndex(x, coord);
 
-        if (value === null) {
+        if (index === null) {
             row.style.display = "none";
-        } else {
-            row.style.display = "";
-            cell.innerHTML = value.toString();
+            return;
         }
+
+        if (this.getTooltip) {
+            cell.innerHTML = this.getTooltip(this.data[index]).toString();
+        } else {
+            cell.innerHTML = this.point.y.accessor(this.data[index]).toString();
+        }
+
+        row.style.display = "";
     }
 
     private drawEnd(ctx: CanvasRenderingContext2D, first: IItem, last: IItem, coord: Coord): void {
@@ -289,7 +295,7 @@ export class Line extends BaseSeries {
         ctx.stroke();
     }
 
-    private findTooltipValue(x: number, coord: Coord): number {
+    private findTooltipIndex(x: number, coord: Coord): number {
         coord.set(this.point.x.key, "");
         bisect.accessor = coord.getX.bind(coord);
 
@@ -321,7 +327,7 @@ export class Line extends BaseSeries {
 
         xRight = coord.getX(itemRight);
         if (Math.floor(xRight) === x) {
-            return valueRight;
+            return itemRight.$index;
         }
 
         indexLeft = indexRight - 1;
@@ -340,11 +346,11 @@ export class Line extends BaseSeries {
 
         // при степенчатой отрисовке всегда берем левое значение
         if (this.stair) {
-            return valueLeft;
+            return itemLeft.$index;
         }
 
         // при обычной отрисовке берем ближнюю точку
         xLeft = coord.getX(itemLeft);
-        return Math.abs(xLeft - x) < Math.abs(xRight - x) ? valueLeft : valueRight;
+        return Math.abs(xLeft - x) < Math.abs(xRight - x) ? itemLeft.$index : itemRight.$index;
     }
 }

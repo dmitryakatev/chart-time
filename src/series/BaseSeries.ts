@@ -77,6 +77,7 @@ export abstract class BaseSeries implements ISeries {
     public color: string;
     public opacity: number;
     public scale: string;
+    public getTooltip: (data: any) => any;
 
     public data: any[];
     public calc: any[];
@@ -104,6 +105,7 @@ export abstract class BaseSeries implements ISeries {
         this.color = config.color;
         this.opacity = isNumeric(config.opacity) ? config.opacity : 1;
         this.scale = config.scale;
+        this.getTooltip = config.tooltip ? this.createAccessor(config.tooltip) : null;
     }
 
     public load(data: any[], calc: any[]): void {

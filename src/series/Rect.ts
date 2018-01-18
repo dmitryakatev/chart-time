@@ -90,27 +90,36 @@ export class Rect extends BaseSeries {
     }
 
     public tooltip(row: HTMLTableRowElement, cell: HTMLTableCellElement, x: number, coord: Coord): void {
-        const value: boolean = this.findTooltipValue(x, coord);
+        const index: number = this.findTooltipIndex(x, coord);
 
-        if (cell.style.display !== "none") {
-            cell.style.display = "none";
-            row.children[0].setAttribute("colspan", "2");
+        if (index === null) {
+            row.style.display = "none";
+            return;
         }
 
-        row.style.display = value ? "" : "none";
+        if (this.getTooltip) {
+            cell.innerHTML = this.getTooltip(this.data[index]);
+        } else {
+            if (cell.style.display !== "none") {
+                cell.style.display = "none";
+                row.children[0].setAttribute("colspan", "2");
+            }
+        }
+
+        row.style.display = "";
     }
 
-    private findTooltipValue(x: number, coord: Coord): boolean {
+    private findTooltipIndex(x: number, coord: Coord): number {
         coord.set(this.point.finish.key, "");
         bisect.accessor = coord.getX.bind(coord);
 
         const index: number = bisect.left(this.filter, x);
 
         if (index >= this.filter.length) {
-            return false;
+            return null;
         }
 
         coord.set(this.point.start.key, "");
-        return coord.getX(this.filter[index]) <= x;
+        return coord.getX(this.filter[index]) <= x ? index : null;
     }
 }
