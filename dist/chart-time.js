@@ -3685,12 +3685,28 @@ var Line = (function (_super) {
             }
             if (yValue === null || xValue * scale - firstX > quality) {
                 if (min) {
-                    filter.push(min);
-                    min = null;
+                    if (max) {
+                        if (min.$index > max.$index) {
+                            filter.push(max);
+                            filter.push(min);
+                        }
+                        else {
+                            filter.push(min);
+                            filter.push(max);
+                        }
+                        min = null;
+                        max = null;
+                    }
+                    else {
+                        filter.push(min);
+                        min = null;
+                    }
                 }
-                if (max) {
-                    filter.push(max);
-                    max = null;
+                else {
+                    if (max) {
+                        filter.push(max);
+                        max = null;
+                    }
                 }
                 if (last) {
                     filter.push(last);
@@ -3707,8 +3723,11 @@ var Line = (function (_super) {
                             break;
                         }
                     }
+                    firstX = util_1.MIN_VALUE;
                 }
-                firstX = Math.floor(xValue * scale);
+                else {
+                    firstX = Math.floor(xValue * scale);
+                }
                 minValue = yValue;
                 maxValue = yValue;
             }
@@ -3731,10 +3750,28 @@ var Line = (function (_super) {
             }
         }
         if (min) {
-            filter.push(min);
+            if (max) {
+                if (min.$index > max.$index) {
+                    filter.push(max);
+                    filter.push(min);
+                }
+                else {
+                    filter.push(min);
+                    filter.push(max);
+                }
+                min = null;
+                max = null;
+            }
+            else {
+                filter.push(min);
+                min = null;
+            }
         }
-        if (max) {
-            filter.push(max);
+        else {
+            if (max) {
+                filter.push(max);
+                max = null;
+            }
         }
         if (last) {
             filter.push(last);

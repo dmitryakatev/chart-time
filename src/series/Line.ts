@@ -111,13 +111,26 @@ export class Line extends BaseSeries {
 
             if (yValue === null || xValue * scale - firstX > quality) {
                 if (min) {
-                    filter.push(min);
-                    min = null;
-                }
+                    if (max) {
+                        if (min.$index > max.$index) {
+                            filter.push(max);
+                            filter.push(min);
+                        } else {
+                            filter.push(min);
+                            filter.push(max);
+                        }
 
-                if (max) {
-                    filter.push(max);
-                    max = null;
+                        min = null;
+                        max = null;
+                    } else {
+                        filter.push(min);
+                        min = null;
+                    }
+                } else {
+                    if (max) {
+                        filter.push(max);
+                        max = null;
+                    }
                 }
 
                 if (last) {
@@ -138,9 +151,12 @@ export class Line extends BaseSeries {
                             break;
                         }
                     }
+
+                    firstX = MIN_VALUE;
+                } else {
+                    firstX = Math.floor(xValue * scale);
                 }
 
-                firstX = Math.floor(xValue * scale);
                 minValue = yValue;
                 maxValue = yValue;
             } else {
@@ -161,11 +177,26 @@ export class Line extends BaseSeries {
         }
 
         if (min) {
-            filter.push(min);
-        }
+            if (max) {
+                if (min.$index > max.$index) {
+                    filter.push(max);
+                    filter.push(min);
+                } else {
+                    filter.push(min);
+                    filter.push(max);
+                }
 
-        if (max) {
-            filter.push(max);
+                min = null;
+                max = null;
+            } else {
+                filter.push(min);
+                min = null;
+            }
+        } else {
+            if (max) {
+                filter.push(max);
+                max = null;
+            }
         }
 
         if (last) {
